@@ -1,0 +1,27 @@
+##single cell data from FLUDIGM C1_800
+
+Installation (Test on Ubuntu)
+
+### install parallel (okay)
+sudo apt-get install parallel
+
+### install HTSeq (error)
+sudo pip install HTSeq
+# if occuring error,try:
+sudo pip install --upgrade setuptools
+sudo pip install ez_setup
+sudo pip install HTSeq
+
+#if error again, try:
+sudo easy_install -U setuptools
+sudo pip install HTSeq
+
+# install STAR 
+sudo apt install rna-star
+
+# install scatter
+# enter R
+source("https://bioconductor.org/biocLite.R")
+biocLite("scater")
+# last step 
+git clone https://github.com/bioeauty/sccpipe.git
