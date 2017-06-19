@@ -1,0 +1,25 @@
+#利用polyA.pl去除AAAAA, 下面为１.sh文件
+
+COLarray=("COL01")
+Subarray=("ROW01" "ROW02" "ROW03")
+
+for i in ${Subarray[*]}
+  do
+  for m in ${COLarray[*]}
+  do
+    echo $(date +"%b %d %T")" ..... Trimming Poly A for "$m"_"$i
+    	perl polyA.pl $m"_"$i"_R2.fastq" $m"_"$i"_R2.fastq2" $m"_"$i"_R2_bad"  6 3 
+  done
+  wait
+done
+
+在ｓｈｅｌｌ中输入bash 1.sh 即可
+
+备注：
+１．　$代表变量，无需“”；只有如　_ 需要加入“”，如“－”
+２．　ｐｅｒｌ没有加入环境变量，需要加入；
+
+
+此外还可以利用
+ls *_R2.fastq | while read id; do perl polyA.pl $id ./filter/${id%.*.fastq} ./bad/${id%.*.fastq} 6　３　
+进行循环处理
