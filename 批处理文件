@@ -23,3 +23,5 @@ done
 此外还可以利用
 ls *_R2.fastq | while read id; do perl polyA.pl $id ./filter/${id%.*.fastq} ./bad/${id%.*.fastq} 6　３　
 进行循环处理
+
+ls *_R2.fastq | while read id; do perl polyA.pl $id ./filter/${id%.*_f.fastq} ./bad/${id%.*_b.fastq} 6 3
