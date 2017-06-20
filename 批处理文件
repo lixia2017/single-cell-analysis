@@ -19,6 +19,14 @@ done
 １．　$代表变量，无需“”；只有如　_ 需要加入“”，如“－”
 ２．　ｐｅｒｌ没有加入环境变量，需要加入；
 
+##由于上面的写复杂了，故改变下
+for i in *fastq
+do
+echo $i
+perl polyA.pl $i ./f/$i"_f.fastq" ./b$i"_bad.fastq" 6 3 
+done
+
+
 
 
 此外还可以利用
