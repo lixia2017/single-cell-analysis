@@ -10,4 +10,19 @@ C1_mRNA_Seq_HT_Demultiplex_Script.zip
 
 COL01_ROW01_R1.fastq
 COL01_ROW01_R2.fastq
+......
 
+perl mRNASeqHT_demultiplex.pl –i input –o output
+
+拆分数据２０ｓａｍｐｌｅ　到　８００个数据
+
+4.去ｐｏｌｙＡ的ｐｅｒｌ
+
+循环如下
+for i in *fastq
+do
+echo $i
+perl polyA.pl $i ./f/$i"_f.fastq" ./b$i"_bad.fastq" 6 3 
+done
+
+５．比对！！！
