@@ -1,0 +1,13 @@
+＃将２０个ｓａｍｐｌｅ文件进行拆分
+
+1. Go to fluidigm.com/c1openapp/scripthub and navigate to the main mRNA Seq HT v2　script page.
+
+C1_mRNA_Seq_HT_Demultiplex_Script.zip
+
+2. mkdir input && output
+
+3. name 
+
+COL01_ROW01_R1.fastq
+COL01_ROW01_R2.fastq
+
