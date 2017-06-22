@@ -1,0 +1,32 @@
+#帮助文档太长，需要查询帮助
+STAR -h | grep "sjdb"
+
+##用STAR进行比对分析
+
+#1. 需要准备文件: 
+基因组文件:.fa()
+index文件：需要利用基因组文件自己构建；
+
+#1. Mapping to the reference
+mkdir $genomeDir
+STAR --runMode genomeGenerate --genomeDir ./genomeDir --genomeFastaFiles ./***.fa  --runThreadN 200
+
+#1-pass STAR
+STAR --genomeDir ./genomeDir --readFilesIn 1.fq --runThreadN 200
+
+mkdir $genomeDir2
+STAR --runMode genomeGenerate --genomeDir ./genomeDir2 --genomeFastaFiles ./***.fa
+    --sjdbFileChrStartEnd ./SJ.out.tab --sjdbOverhang 75 --runThreadN <n>
+
+#2-pass STAR
+STAR --genomeDir ./genomeDir2 --readFilesIn 1.fq --runThreadN <n>
+
+
+#2. Add read groups, sort, mark duplicates, and create index
+
+
+#3. Split'N'Trim and reassign mapping qualities
+
+
+学习的参考链接：
+https://software.broadinstitute.org/gatk/documentation/article.php?id=3891
