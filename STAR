@@ -10,16 +10,21 @@ index文件：需要利用基因组文件自己构建；
 #1. Mapping to the reference
 mkdir $genomeDir
 STAR --runMode genomeGenerate --genomeDir ./genomeDir --genomeFastaFiles ./***.fa  --runThreadN 200
+如多个文件需写循环进行。。。
 
 #1-pass STAR
 STAR --genomeDir ./genomeDir --readFilesIn 1.fq --runThreadN 200
 
 mkdir $genomeDir2
-STAR --runMode genomeGenerate --genomeDir ./genomeDir2 --genomeFastaFiles ./***.fa
-    --sjdbFileChrStartEnd ./SJ.out.tab --sjdbOverhang 75 --runThreadN <n>
+STAR --runMode genomeGenerate --genomeDir ./genomeDir2 
+--genomeFastaFiles Homo_sapiens.GRCh38.dna.primary_assembly.fa 
+--sjdbFileChrStartEnd ./SJ --sjdbOverhang 75 --runThreadN 200
+＃./SJ 中存放splice junction information contained in the file SJ.out.tab from the first pass
 
-#2-pass STAR
+
+#2-pass STAR　alin
 STAR --genomeDir ./genomeDir2 --readFilesIn 1.fq --runThreadN <n>
+
 
 
 #2. Add read groups, sort, mark duplicates, and create index
