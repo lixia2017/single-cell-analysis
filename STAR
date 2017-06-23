@@ -12,6 +12,16 @@ mkdir $genomeDir
 STAR --runMode genomeGenerate --genomeDir ./genomeDir --genomeFastaFiles ./***.fa  --runThreadN 200
 如多个文件需写循环进行。。。
 
+循环代码如下，放在了ｓｈ中（１．sh代码）：
+for i in *.fastq
+do
+echo $i
+STAR --genomeDir ./genomeDir --readFilesIn $i --outFileNamePrefix "$i" --runThreadN 200
+done
+
+
+
+
 #1-pass STAR
 STAR --genomeDir ./genomeDir --readFilesIn 1.fq --runThreadN 200
 
