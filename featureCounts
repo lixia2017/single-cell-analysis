@@ -1,0 +1,10 @@
+利用featureCounts　对ｓａｍ文件计算Ｃｏｕｎｔｓ
+
+代码如下：
+for i in *sam
+do
+echo $i
+featureCounts -t exon -g gene_name -a Homo_sapiens.GRCh38.86.gtf -o ./output/"$i" $i
+done
+
+＃＃还需解决输出文件的名字问题。。。
