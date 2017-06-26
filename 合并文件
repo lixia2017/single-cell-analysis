@@ -8,9 +8,18 @@ echo $i
 sed -i '1d' $i
 done
 
-＃１　合并后还需取文件的子集进行后续分析
- b<-a[,c(1,2,8)]
+＃１　合并后,在Ｒ中还需取文件的子集进行后续分析
+a=read.table('tmp.txt',sep = '\t',stringsAsFactors = F)
 
+b<-a[,c(1,2,8)]
+
+fpkm <- dcast(ｂ,formula = V2~V1)
+
+row.names(fpkm)<-fpkm$V2
+fpkm<-fpkm[,-1]
+names(fpkm)<-unlist(lapply(names(fpkm),function(x){tmp<-strsplit(x,'_R2')[[1]][1]})) 
+
+＃＃＃以上为最新版本ｓｉｎｇｌｅ　ｃｅｌｌ　Ｃ１　ｓｅｑｕｅｎｃｅ。。。
 
 
 代码如下：
