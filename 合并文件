@@ -8,11 +8,13 @@ echo $i
 sed -i '1d' $i
 done
 
+awk '{print FILENAME"\t"$0}' * |grep -v Geneid >tmp.txt
+
 ＃１　合并后,在Ｒ中还需取文件的子集进行后续分析
 a=read.table('tmp.txt',sep = '\t',stringsAsFactors = F)
-
 b<-a[,c(1,2,8)]
 
+library(reshape2)
 fpkm <- dcast(ｂ,formula = V2~V1)
 
 row.names(fpkm)<-fpkm$V2
