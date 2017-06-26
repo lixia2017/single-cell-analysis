@@ -1,4 +1,18 @@
 #利用htseq-count 获取raw counts后需要对批量文件进行合并。。。
+
+＃０　合并文件前，可能需要对文件进行预处理，如删除每个文件的第一行，具体如下：
+
+for i in *sam
+do
+echo $i
+sed -i '1d' $i
+done
+
+＃１　合并后还需取文件的子集进行后续分析
+ b<-a[,c(1,2,8)]
+
+
+
 代码如下：
 
 rm(list = ls())
@@ -29,3 +43,5 @@ names(fpkm)<-unlist(lapply(names(fpkm),function(x){
 }))  ##体会[1]与[[1]]的区别
  
 write.csv(fpkm,"56sample fpkm.csv")
+
+
