@@ -35,6 +35,16 @@ STAR --runMode genomeGenerate --genomeDir ./genomeDir2
 #2-pass STAR　alin
 STAR --genomeDir ./genomeDir2 --readFilesIn 1.fq --runThreadN <n>
 
+＃此外还是需要循环处理文件，在ｓｔａｒ２中输入如下代码，利用新的刚刚生成ｉｎｄｅｘ的文件夹　ｇｅｎｏｍｅＤｉｒ２和ｏｕｔｐｕｔ２
+
+for i in *.fastq
+do
+echo $i
+STAR --genomeDir ../genomeDir2 --readFilesIn $i --outFileNamePrefix ../output2/"$i" --runThreadN 500
+done
+
+＃＃利用ｂａｓｈ　ｓｔａｒ２　
+
 
 
 #2. Add read groups, sort, mark duplicates, and create index
