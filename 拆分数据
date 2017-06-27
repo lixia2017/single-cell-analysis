@@ -26,3 +26,44 @@ perl polyA.pl $i ./f/$i"_f.fastq" ./b$i"_bad.fastq" 6 3
 done
 
 ５．比对！！！
+#帮助文档太长，需要查询帮助
+STAR -h | grep "sjdb"
+##用STAR进行比对分析
+
+#1. 需要准备文件: 
+基因组文件:.fa()
+index文件：需要利用基因组文件自己构建；
+
+#1. Mapping to the reference
+mkdir $genomeDir
+STAR --runMode genomeGenerate --genomeDir ./genomeDir --genomeFastaFiles ./***.fa  --runThreadN 200
+
+#1-pass STAR
+STAR --genomeDir ./genomeDir --readFilesIn 1.fq --runThreadN 200
+对比如是多个文件需写循环进行。。。
+循环代码如下，放在了ｓｈ中（１．sh代码）：
+for i in *.fastq
+do
+echo $i
+STAR --genomeDir ./genomeDir --readFilesIn $i --outFileNamePrefix "$i" --runThreadN 200
+done
+
+＃构建ｉｎｄｅｘ２
+mkdir $genomeDir2
+STAR --runMode genomeGenerate --genomeDir ./genomeDir2 
+--genomeFastaFiles Homo_sapiens.GRCh38.dna.primary_assembly.fa 
+--sjdbFileChrStartEnd ./SJ --sjdbOverhang 75 --runThreadN 200
+＃./SJ 中存放splice junction information contained in the file SJ.out.tab from the first pass
+
+
+#2-pass STAR　alin
+STAR --genomeDir ./genomeDir2 --readFilesIn 1.fq --runThreadN <n>
+
+＃此外还是需要循环处理文件，在ｓｔａｒ２中输入如下代码，利用新的刚刚生成ｉｎｄｅｘ的文件夹　ｇｅｎｏｍｅＤｉｒ２和ｏｕｔｐｕｔ２
+for i in *.fastq
+do
+echo $i
+STAR --genomeDir ../genomeDir2 --readFilesIn $i --outFileNamePrefix ../output2/"$i" --runThreadN 500
+done
+
+＃＃利用ｂａｓｈ　ｓｔａｒ２　
