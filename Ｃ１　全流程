@@ -110,7 +110,7 @@ names(fpkm)<-unlist(lapply(names(fpkm),function(x){tmp<-strsplit(x,'_R2')[[1]][1
 rm(list = ls())
  
 ## 首先在GSE48213_RAW目录里面生成tmp.txt文件
-awk '{print FILENAME"\t"$0}' * |grep -v EnsEMBL_Gene_ID >tmp.txt
+awk '{print FILENAME"\t"$0}' * |grep -v Gene_ID >tmp.txt
  
 ## awk 为linux 下批处理命令，输出当前文件名， $0表示整个记录--awk '{print FILENAME"\t"$0}' * |grep -v EnsEMBL_Gene_ID >tmp.txt
  
