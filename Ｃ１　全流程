@@ -67,3 +67,17 @@ STAR --genomeDir ../genomeDir2 --readFilesIn $i --outFileNamePrefix ../output2/"
 done
 
 ＃＃利用ｂａｓｈ　ｓｔａｒ２　
+
+
+＃＃利用ｆｅａｔｕｒｅＣｏｕｎｔｓ统计原始ｃｏｕｎｔｓ
+##将所有ｓａｍ文件转移至另一个文件夹，如ｃｏｕｎｔｓ，在ｆｅａｔｕｒｅ.sh中写入如下代码：
+for i in *sam
+do
+echo $i
+featureCounts -t exon -g gene_name -a Homo_sapiens.GRCh38.86.gtf -o ./output/"$i" $i
+done
+
+
+
+
+
