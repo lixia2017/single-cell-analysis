@@ -78,6 +78,61 @@ featureCounts -t exon -g gene_name -a Homo_sapiens.GRCh38.86.gtf -o ./output/"$i
 done
 
 
+＃＃在利用ｆｅａｔｕｒｅＣｏｕｎｔｓ 获取raw counts后需要对批量文件进行合并。。。
+
+＃合并文件前，可能需要对文件进行预处理，如删除每个文件的第一行，具体如下：
+
+for i in *sam
+do
+echo $i
+sed -i '1d' $i
+done
+
+将８００个文件
+awk '{print FILENAME"\t"$0}' * |grep -v Geneid >tmp.txt
+
+＃１　合并后,在Ｒ中还需取文件的子集进行后续分析
+a=read.table('tmp.txt',sep = '\t',stringsAsFactors = F)
+b<-a[,c(1,2,8)]
+
+library(reshape2)
+fpkm <- dcast(ｂ,formula = V2~V1)
+
+row.names(fpkm)<-fpkm$V2
+fpkm<-fpkm[,-1]
+names(fpkm)<-unlist(lapply(names(fpkm),function(x){tmp<-strsplit(x,'_R2')[[1]][1]})) 
+
+＃＃＃以上为最新版本ｓｉｎｇｌｅ　ｃｅｌｌ　Ｃ１　ｓｅｑｕｅｎｃｅ。。。
 
 
+代码如下：
+
+rm(list = ls())
+ 
+## 首先在GSE48213_RAW目录里面生成tmp.txt文件
+awk '{print FILENAME"\t"$0}' * |grep -v EnsEMBL_Gene_ID >tmp.txt
+ 
+## awk 为linux 下批处理命令，输出当前文件名， $0表示整个记录--awk '{print FILENAME"\t"$0}' * |grep -v EnsEMBL_Gene_ID >tmp.txt
+ 
+##去除表头---grep -v EnsEMBL_Gene_ID
+##赋值给tmp.txt
+ 
+## 然后把tmp.txt导入R语言里面用reshape2处理即可！
+setwd('C:/Users/Administrator/Desktop/learn/lecture4/新建文件夹/tmp')
+a=read.table('tmp.txt',sep = '\t',stringsAsFactors = F)
+ 
+library(reshape2)
+fpkm <- dcast(a,formula = V2~V1)
+??dcast
+ 
+row.names(fpkm)<-fpkm$V2
+fpkm<-fpkm[,-1]
+
+## 改名
+names(fpkm)<-unlist(lapply(names(fpkm),function(x){
+  tmp<-strsplit(x,'_')[[1]][2]  
+  tmp<-strsplit(tmp,'\\.')[[1]][1]
+}))  ##体会[1]与[[1]]的区别
+ 
+write.csv(fpkm,"56sample fpkm.csv")
 
