@@ -62,6 +62,9 @@ e<-as.data.frame(t(d))
 e[which(e$CD19>0),]
 length(e[which(e$CD19>0),])
 
+＃＃简单的代码
+length(which(fpkm[rownames(fpkm) %in% "CD19",]>0))
+
 
 
 
