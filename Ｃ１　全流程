@@ -145,3 +145,6 @@ length(e[which(e$CD19>0),])
 ＃＃简单的代码
 length(which(fpkm[rownames(fpkm) %in% "CD19",]>0))
 
+all<-merge(zhouxia,lou,by="row.names",all=T)
+
+
