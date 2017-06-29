@@ -1,0 +1,17 @@
+＃学习
+
+假定这是一个数据框：
+df=...
+你想把列名变成x1,x2,...x5
+cnames=paste("x",1:5,sep="")
+colnames(df)=cnames
+就可以实现重命名了
+
+＃＃自己数据（Ｃ１）
+数据框：ｃｃ（８００行）
+
+cnames<-c(paste("R2",1:400,sep="_"),paste("R3",1:400,sep="_"))
+colnames(cc)<-cnames
+
+就可以实现重命名了
+
