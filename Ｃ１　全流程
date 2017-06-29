@@ -136,3 +136,12 @@ names(fpkm)<-unlist(lapply(names(fpkm),function(x){
  
 write.csv(fpkm,"56sample fpkm.csv")
 
+##读取ＣＤ１９＋数据
+d<-fpkm[rownames(fpkm) %in% "CD19",]
+e<-as.data.frame(t(d))
+e[which(e$CD19>0),]
+length(e[which(e$CD19>0),])
+
+＃＃简单的代码
+length(which(fpkm[rownames(fpkm) %in% "CD19",]>0))
+
