@@ -66,6 +66,9 @@ length(e[which(e$CD19>0),])
 length(which(fpkm[rownames(fpkm) %in% "CD19",]>0))
 
 
+##合并两个Ｃ１数据文件
+
+all<-merge(zhouxia,lou,by="row.names",all=T)
 
 
 
