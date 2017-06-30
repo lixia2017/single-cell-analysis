@@ -25,3 +25,20 @@ source("https://bioconductor.org/biocLite.R")
 biocLite("scater")
 # last step 
 git clone https://github.com/bioeauty/sccpipe.git
+
+
+##分析思路：
+1. 所有病人细胞的tsne降维图，其中显示CD19+，显示阳性复发！！！
+
+2. 周霞病人的亚克隆演化图（CD19+ 细胞）  mono
+
+3. 关键基因的表达量显示图。利用violont等。。。
+
+3. 前后比较的热图 和 维恩图 ，信号通路富集图！
+
+
+
+
+
+
+
