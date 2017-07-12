@@ -1,0 +1,100 @@
+##治疗前样本：
+library(Seurat)
+a<-read.csv("")
+pbmc <- new("seurat", raw.data = a)
+pbmc <- Setup(pbmc, min.cells = 3, min.genes = 200, do.logNormalize = T, total.expr = 1e4, project = "Zhouxia")
+
+pbmc <- MeanVarPlot(pbmc ,fxn.x = expMean, fxn.y = logVarDivMean, x.low.cutoff = 0.0125, x.high.cutoff = 3, y.cutoff = 0.5, do.contour = F)
+length(pbmc@var.genes)
+
+pbmc <- PCA(pbmc, pc.genes = pbmc@var.genes, do.print = TRUE, pcs.print = 2, 
+            genes.print = 5)
+pbmc <- ProjectPCA(pbmc)
+
+PrintPCA(pbmc, pcs.print = 1:2, genes.print = 5, use.full = TRUE)
+VizPCA(pbmc, 1:2)
+PCAPlot(pbmc, 1, 2)
+PCAPlot(pbmc, 1, 2,pt.size=3)
+
+##治疗后样本同上！
+
+
+##monocle 分析
+
+all2<-read.csv("zhouxia_cd19.csv",head=T,row.names = 1)
+all2<-all2[,-26]
+colnames(all2)
+sample_sheet <- data.frame(row.names=colnames(all2), source = colnames(all2),state = c(rep("B1",9), rep("B2",16),rep("R",82)))
+gene_annotation <- data.frame(row.names=rownames(all2), gene_short_name = rownames(all2),biotype="protein_coding")
+
+pd <- new("AnnotatedDataFrame", data = sample_sheet)
+fd <- new("AnnotatedDataFrame", data = gene_annotation)
+HSMM <- newCellDataSet(as.matrix(all2), phenoData = pd, featureData = fd)
+
+HSMM <- detectGenes(HSMM, min_expr = 1)
+print(head(fData(HSMM)))
+# gene_short_name        biotype num_cells_expressed
+# RP11-34P13.7    RP11-34P13.7 protein_coding                   5
+# FO538757.1        FO538757.1 protein_coding                  15
+# AP006222.2        AP006222.2 protein_coding                   6
+# RP5-857K21.4    RP5-857K21.4 protein_coding                   4
+# LINC01128          LINC01128 protein_coding                  13
+# RP11-54O7.16    RP11-54O7.16 protein_coding                   2
+
+expressed_genes <- row.names(subset(fData(HSMM), num_cells_expressed >= 40))
+length(expressed_genes)
+# [1] 3656
+print(head(pData(HSMM)))
+# source state Size_Factor num_genes_expressed
+# Sb_01_ROW04 Sb_01_ROW04 befor          NA                 301
+# Sb_01_ROW12 Sb_01_ROW12 befor          NA                4417
+# Sb_01_ROW17 Sb_01_ROW17 befor          NA                2645
+# Sb_01_ROW21 Sb_01_ROW21 befor          NA                3261
+# Sb_01_ROW25 Sb_01_ROW25 befor          NA                 772
+# Sb_01_ROW26 Sb_01_ROW26 befor          NA                 768
+
+HSMM
+L <- log(exprs(HSMM[expressed_genes,]))
+head(L[,1:5])
+# Sb_01_ROW04 Sb_01_ROW12 Sb_01_ROW17 Sb_01_ROW21 Sb_01_ROW25
+# ISG15           -Inf    3.734656        -Inf        -Inf        -Inf
+# UBE2J2          -Inf    1.256210        -Inf        -Inf        -Inf
+# AURKAIP1        -Inf        -Inf        -Inf        -Inf        -Inf
+# CCNL2           -Inf        -Inf        -Inf        -Inf        -Inf
+# SSU72           -Inf        -Inf        -Inf        -Inf   0.5760293
+# CDK11B          -Inf        -Inf        -Inf    5.766534        -Inf
+
+L[is.infinite(L)] <- log(10^-3)  ###???
+head(L[,1:5])
+# Sb_01_ROW04 Sb_01_ROW12 Sb_01_ROW17 Sb_01_ROW21 Sb_01_ROW25
+# ISG15      -6.907755    3.734656   -6.907755   -6.907755  -6.9077553
+# UBE2J2     -6.907755    1.256210   -6.907755   -6.907755  -6.9077553
+# AURKAIP1   -6.907755   -6.907755   -6.907755   -6.907755  -6.9077553
+# CCNL2      -6.907755   -6.907755   -6.907755   -6.907755  -6.9077553
+# SSU72      -6.907755   -6.907755   -6.907755   -6.907755   0.5760293
+
+library(reshape)
+melted_dens_df <- melt(t(scale(t(L))))  ###???
+#??melt
+
+head(melted_dens_df)
+# Var1        Var2      value
+# 1    ISG15 Sb_01_ROW04 -0.5429312
+# 2   UBE2J2 Sb_01_ROW04 -0.4120066
+# 3 AURKAIP1 Sb_01_ROW04 -0.7943053
+# 4    CCNL2 Sb_01_ROW04 -0.3876273
+qplot(value, geom="density", data=melted_dens_df)
+qplot(value, geom="density", data=melted_dens_df) + stat_function(fun = dnorm, size=0.5, color='red')
+
+HSMM <- estimateSizeFactors(HSMM)
+HSMM <- setOrderingFilter(HSMM, expressed_genes)
+
+HSMM <- estimateDispersions(HSMM) ##Error
+disp_table <- dispersionTable(HSMM) ##Error
+
+HSMM <- reduceDimension(HSMM,use_irlba=FALSE)
+HSMM <- orderCells(HSMM, num_paths=3, reverse=TRUE)
+plot_spanning_tree(HSMM,cell_size = 3)
+plot_spanning_tree(HSMM,color_by=pData(HSMM)$state,cell_size = 4)
+
+##
