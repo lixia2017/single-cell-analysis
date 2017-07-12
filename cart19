@@ -97,4 +97,27 @@ HSMM <- orderCells(HSMM, num_paths=3, reverse=TRUE)
 plot_spanning_tree(HSMM,cell_size = 3)
 plot_spanning_tree(HSMM,color_by=pData(HSMM)$state,cell_size = 4)
 
-##
+##热图展示 与 美化
+stem<-read.csv("pi3k_nor_dinggao.csv",header = T,row.names = 1)
+rownames(stem)
+stem<-stem[-12,]
+rownames(stem)
+colnames(stem)
+colnames(stem)<-c(paste("B2",1:15,sep="_"),paste("B1",1:10,sep="_"))
+
+ee<-log(stem+0.00001)
+
+pheatmap(stem)
+pheatmap(ee,cluster_cols = F)
+
+condition<-""
+condition[1:15]<-"B2"
+condition[16:25]<-"B1"
+treat<-as.data.frame(condition)
+row.names(treat)<-colnames(ee)
+
+annotation_col = data.frame(row.names = rownames(treat), 
+                            group = factor(treat$condition))
+
+pheatmap(ee,annotation_col=annotation_col,show_colnames=F,fontsize=8,
+         main = "PI3K-AKT pathway related gene expression",cluster_cols = F)
