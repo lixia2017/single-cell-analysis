@@ -25,7 +25,7 @@ echo $i
 perl polyA.pl $i ./f/$i"_f.fastq" ./b$i"_bad.fastq" 6 3 
 done
 
-５．比对！！！
+５．比对！！！（STAR + featurecounts）
 #帮助文档太长，需要查询帮助
 STAR -h | grep "sjdb"
 ##用STAR进行比对分析
