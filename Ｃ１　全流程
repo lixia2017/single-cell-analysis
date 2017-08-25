@@ -16,6 +16,11 @@ perl mRNASeqHT_demultiplex.pl –i input –o output
 
 拆分数据２０ｓａｍｐｌｅ　到　８００个数据
 
+###文件需要解压成fastq文件，切mRNASeq*.pl 大小为11.4kb，而输入 -i 后用tab建自动获取文件夹无效。。。
+##用fastqc去质检测序质量
+发现周霞，总体来说还好！
+发现SW的：R1质量一遍，R2质量较好！
+
 4.去ｐｏｌｙＡ的ｐｅｒｌ
 
 循环如下
