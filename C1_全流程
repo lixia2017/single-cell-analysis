@@ -20,6 +20,7 @@ perl mRNASeqHT_demultiplex.pl –i input –o output
 ##用fastqc去质检测序质量
 发现周霞，总体来说还好！
 发现SW的：R1质量一遍，R2质量较好！
+##13:00 start
 
 4.去ｐｏｌｙＡ的ｐｅｒｌ
 
