@@ -1,0 +1,17 @@
+#!usr/bin/bash
+set -u
+set -e
+set -o pipefail
+
+data_path=~/lixia/C1_CART_20170914/output/f
+GRCH38_human_index=~/hsc/liubing_10cell/fastq/data/human_hisat2_index/chr_tran
+GRCH38_ref_human=~/data/human_genome
+GRCH38_hGTF=~/data/Homo_sapiens.GRCh38.86.gtf
+NUM_THREADS=48
+
+ls --color=never *.fastq | while read id;do(hisat2 -t -p $NUM_THREADS -x  $GRCH38_human_index  -U $data_path/${id%_*}_R2.fastq 2>${id%_*}_map.log | samtools view -Sb - >${id%_*}.bam);done
+ls --color=never *.bam|while read id;do(samtools sort -n --threads 40 $id -o ${id%.*}_sorted_name.bam);done
+ls --color=never *_sorted_name.bam | while read id;do(samtools index $id);done
+
+##为什么比对mapping率很低？
+
