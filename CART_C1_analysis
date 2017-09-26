@@ -1,0 +1,32 @@
+rm(list = ls())
+setwd("/home/hcb-lab/lixia")
+dir()
+
+a=read.table('tmp_lou.txt',sep = '\t',stringsAsFactors = F)
+head(a)
+library(reshape2)
+count <- dcast(a,formula = V2~V1)
+??dcast
+head(count)
+row.names(count)<-count$V2
+count2<-count[,-1]
+
+aaa<-as.data.frame(t(count2))
+dim(aaa)
+
+bbb<-aaa[which(aaa$GAPDH != "0"),]
+bbb2<-bbb[which(bbb$ACTB!="0"),]
+lou_dinggao<-as.data.frame(t(bbb2))
+c<-lou_dinggao[rowMeans(lou_dinggao[,1:420]) !=0,] 
+d<-c[-c(1,2,3,4),]
+write.csv(d,"lou_dinggao_actb_gapdh_0.csv")
+
+cd19<-as.data.frame(t(d[rownames(d)=="CD19",]))
+cd192<-as.data.frame(cd19[which(cd19$CD19!=0),])
+
+#另外一种方法方法 
+ccc<-subset(aaa,GAPDH>0 & ACTB>0)
+
+
+e<-colSums(count2)
+barplot(e,width = 0.1,col = T)
