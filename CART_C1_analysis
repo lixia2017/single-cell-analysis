@@ -30,3 +30,8 @@ ccc<-subset(aaa,GAPDH>0 & ACTB>0)
 
 e<-colSums(count2)
 barplot(e,width = 0.1,col = T)
+
+e<-colSums(d)
+barplot(e,width = 0.1,col = T)
+summary(e)
+boxplot(e)
