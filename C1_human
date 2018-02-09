@@ -1,0 +1,1310 @@
+rm(list=ls())
+dev.off()
+setwd("/home/hcb-lab/桌面/2018lixia/")
+dir()
+mat<-read.table("3D_total_TPM.txt",row.names = 1,header = T)
+mat[1:8,1:8]
+colnames(mat)
+
+ES<-mat[,2401:2800]
+matnoES<-mat[,-(2401:2800)]
+
+cd34<-matnoES[which(rownames(matnoES)=="CD34"),]
+colnames(cd34)
+
+cd<-as.data.frame(t(cd34))
+cd$name<-rownames(cd)
+
+cd2<-as.data.frame(cd[which(cd$CD34>0),])
+mat2noES<-as.data.frame(t(matnoES))
+#rownames(mat2noES)
+
+dg<-mat2noES[cd2$name,]
+rownames(dg)
+DG<-as.data.frame(t(dg))
+rownames(DG)
+rownames(ES)
+
+all<-cbind(DG,ES)
+colnames(all)
+
+all1<-all[rowMeans(all[,1:1558])!=0,]
+
+
+##
+s1<-as.data.frame(t(all1))
+# s2<-as.data.frame(s1[which(s1$GAPDH>0),])
+# s3<-as.data.frame(s1[which(s1$ACTB>0),])
+
+s5<-as.data.frame(s1[which(s1$GAPDH + s1$ACTB>0),])
+rownames(s5)
+
+# x<-c(rownames(s2),rownames(s3))
+# length(x)
+# y<-unique(x)
+# length(y)
+
+# s4<-s1[y,]
+alldg<-as.data.frame(t(s5))
+write.csv(alldg,"c1_dg_tpm_cd34_ES.csv")
+colnames(alldg)
+
+D7EB<-paste(c("D7_EB_"),1:120,sep="")
+D73D<-paste(c("D7_3D_"),1:44,sep="")
+D10EB<-paste(c("D10_EB_"),1:210,sep="")
+D103D<-paste(c("D10_3D_"),1:203,sep="")
+D14EB<-paste(c("D14_EB_"),1:111,sep="")
+D143D<-paste(c("D14_3D_"),1:159,sep="")
+HSC<-paste(c("HSC_"),1:255,sep="")
+ES<-paste(c("ES_"),1:390,sep="")
+name<-c(D7EB,D73D,D10EB,D103D,D14EB,D143D,HSC,ES)
+length(name)
+name
+
+gene<-alldg[c("CD34","FTO","ASB2","RARA","ALKBH5","METTL3","METTL4","WTAP","ACTB","GAPDH"),]
+
+# genestem<-alldg[c("CD34","CD38","RUNX1","GATA1","ACTB","GAPDH"),]
+
+# aa<-apply(gene,2,max)
+# gene3<-gene[,aa<400]
+
+alldgname<-alldg
+colnames(alldgname)<-name
+alldgnamegene<-alldgname[rowSums(!!alldgname[,1:1492])>5,]
+
+gene<-alldgnamegene[c("CD34","FTO","CD38","RUNX1","GATA1","ASB2","RARA","ALKBH5","METTL3","METTL4","WTAP","ACTB","GAPDH"),]
+###
+library(pheatmap)
+pheatmap(gene)
+
+# s4$name<-rownames(s4)
+# rownames(s4)
+# 
+# name<-unlist(lapply(s4$name,function(x){
+#   tmp<-unlist(strsplit(as.character(x),"_"))
+#   tmp<-strsplit(tmp,"_")[[1]][1]
+# }))
+
+
+######美化
+condition<-""
+condition[1:120]<-"D7_EB"
+condition[121:164]<-"D7_3D"
+
+condition[165:374]<-"D10_EB"
+condition[375:577]<-"D10_3D"
+
+condition[578:688]<-"D14_EB"
+condition[689:847]<-"D14_3D"
+
+condition[848:1102]<-"HSC"
+condition[1103:1492]<-"ES"
+
+treat<-as.data.frame(condition)
+row.names(treat)<-colnames(alldgnamegene)
+annotation_col = data.frame(row.names = rownames(treat), 
+                            group = factor(treat$condition))
+
+aa<-apply(alldgnamegene,2,max)
+gene3<-alldgnamegene[,aa<400]
+
+pheatmap(gene3,annotation_col=annotation_col,show_colnames=T,fontsize=8,
+         main = "related gene expression")
+
+
+###C1_analysis
+rm(list=ls())
+dev.off()
+setwd("/home/hcb-lab/桌面/2018lixia/")
+dir()
+mat<-read.table("3D_total_TPM.txt",row.names = 1,header = T)
+mat[1:8,1:8]
+colnames(mat)
+
+ES<-mat[,2401:2800]
+matnoES<-mat[,-(2401:2800)]
+
+cd34<-matnoES[which(rownames(matnoES)=="CD34"),]
+colnames(cd34)
+
+cd<-as.data.frame(t(cd34))
+cd$name<-rownames(cd)
+
+cd2<-as.data.frame(cd[which(cd$CD34>0),])
+mat2noES<-as.data.frame(t(matnoES))
+#rownames(mat2noES)
+
+dg<-mat2noES[cd2$name,]
+rownames(dg)
+DG<-as.data.frame(t(dg))
+rownames(DG)
+rownames(ES)
+
+all<-cbind(DG,ES)
+colnames(all)
+
+all1<-all[rowMeans(all[,1:1558])!=0,]
+
+
+##
+s1<-as.data.frame(t(all1))
+# s2<-as.data.frame(s1[which(s1$GAPDH>0),])
+# s3<-as.data.frame(s1[which(s1$ACTB>0),])
+
+s5<-as.data.frame(s1[which(s1$GAPDH + s1$ACTB>0),])
+rownames(s5)
+
+# x<-c(rownames(s2),rownames(s3))
+# length(x)
+# y<-unique(x)
+# length(y)
+
+# s4<-s1[y,]
+alldg<-as.data.frame(t(s5))
+#write.csv(alldg,"c1_dg_tpm_cd34_ES.csv")
+colnames(alldg)
+
+# D7EB<-paste(c("D7EB"),1:120,sep="")
+# D73D<-paste(c("D73D"),1:44,sep="")
+# D10EB<-paste(c("D10EB"),1:210,sep="")
+# D103D<-paste(c("D103D_"),1:203,sep="")
+# D14EB<-paste(c("D14_EB_"),1:111,sep="")
+# D143D<-paste(c("D14_3D_"),1:159,sep="")
+# HSC<-paste(c("HSC_"),1:255,sep="")
+# ES<-paste(c("ES_"),1:390,sep="")
+
+
+D7EB<-paste(c("D07EB"),1:120,sep="")
+D73D<-paste(c("D073D"),1:44,sep="")
+D10EB<-paste(c("D10EB"),1:210,sep="")
+D103D<-paste(c("D103D"),1:203,sep="")
+D14EB<-paste(c("D14EB"),1:111,sep="")
+D143D<-paste(c("D143D"),1:159,sep="")
+HSC<-paste(c("HSC"),1:255,sep="")
+ES<-paste(c("ES"),1:390,sep="")
+name<-c(D7EB,D73D,D10EB,D103D,D14EB,D143D,HSC,ES)
+length(name)
+name
+
+colnames(alldg)<-name
+alldg[1:5,1:5]
+
+#gene<-alldg[c("CD34","FTO","ASB2","RARA","ALKBH5","METTL3","METTL4","WTAP","ACTB","GAPDH"),]
+#genestem<-alldg[c("CD34","CD38","RUNX1","GATA1","ACTB","GAPDH"),]
+
+#aa<-apply(gene,2,max)
+#gene3<-gene[,aa<400]
+
+alldgname<-alldg
+# colnames(alldgname)<-name
+alldgnamegene<-alldgname[rowSums(!!alldgname[,1:1492])>5,]
+#write.csv(alldgnamegene,"c1_20180126dg_tpm_cd34_ES.csv")
+
+gene<-alldgnamegene[c("CD34","NT5E","LCOR","LMO2","GFL1","FOSB",
+                      "RORA","SOX17","ETV2","TAL1","SPI1","ERG",
+                      "HOXA5","GYPA","SSEA4","HOXB4","CXCR4","SPN",
+                      "POU5F1","SOX2","SOX4","NANOG","MYB","THY1",
+                      "FLK","CD235A","CD43","GATA2","SCL","FTO",
+                      "CD38","RUNX1","RARA","ALKBH5","METTL3",
+                      "METTL4","WTAP","ACTB","GAPDH",",METTL14",
+                      "CSF3R","PECAM1","KDR","HOXA9","MEIS1"),]
+#gypa cd235a
+#NT5E CD73
+#neipi
+#CD144 CSF3R
+#PECAM1 CD31
+#
+
+gene<-na.omit(gene)
+#gene[is.na(gene)]<-0
+     
+
+##
+#aa<-apply(gene,2,max)
+#gene3<-gene[,aa<4000]
+
+gene4<-log10(gene+0.01)
+colnames(gene4)
+#library(pheatmap)
+#pheatmap(gene4,annotation_col=annotation_col,show_colnames=F,fontsize=8,cluster_cols = F,
+         main = "Related gene expression")
+
+# pheatmap(gene4)
+# colnames(gene4)
+
+# s4$name<-rownames(s4)
+# rownames(s4)
+# 
+# name<-unlist(lapply(s4$name,function(x){
+#   tmp<-unlist(strsplit(as.character(x),"_"))
+#   tmp<-strsplit(tmp,"_")[[1]][1]
+# }))
+
+
+######美化
+condition<-""
+condition[1:120]<-"D07_EB"
+condition[121:164]<-"D07_3D"
+
+condition[165:374]<-"D10_EB"
+condition[375:577]<-"D10_3D"
+
+condition[578:688]<-"D14_EB"
+condition[689:847]<-"D14_3D"
+
+condition[848:1102]<-"HSC"
+condition[1103:1492]<-"ES"
+
+treat<-as.data.frame(condition)
+row.names(treat)<-colnames(alldgnamegene)
+annotation_col = data.frame(row.names = rownames(treat), 
+                            group = factor(treat$condition))
+
+gene4[1:5,1:5]
+
+pheatmap(gene4,annotation_col=annotation_col,show_colnames=F,
+         fontsize=8,cluster_cols = F, 
+         main = "Related gene expression")
+
+write.csv(gene4,"heatmap.csv")
+gene7<-read.table("heatmap_ESfirst.csv",sep=",",row.names = 1,header=T)
+  
+# geneES<-gene4[,1103:1492]
+# geneES$name<-rownames(gene4)
+# geneES
+# 
+# gene6<-gene4[,1:1102]
+# gene6$name<-rownames(gene6)
+# gene6
+# geneES$name
+# gene6$name
+# gene7<-merge(geneES,gene6,by.x=391,by.y=1103)
+# colnames(gene7)
+# gene7<-gene7[,-1]
+# rownames(gene7)<-rownames(gene4)
+# rownames(gene7)
+
+condition<-""
+condition[1:390]<-"ES"
+condition[391:510]<-"D07_EB"
+condition[511:554]<-"D07_3D"
+
+condition[555:764]<-"D10_EB"
+condition[765:967]<-"D10_3D"
+
+condition[968:1078]<-"D14_EB"
+condition[1079:1237]<-"D14_3D"
+
+condition[1238:1492]<-"HSC"
+
+treat<-as.data.frame(condition)
+row.names(treat)<-colnames(gene7)
+annotation_col = data.frame(row.names = rownames(treat), 
+                            group = factor(treat$condition))
+head(annotation_col)
+head(gene7)
+pheatmap(gene7,annotation_col=annotation_col,show_colnames=F,
+         fontsize=8,cluster_cols = F, main = "Related gene expression")
+
+
+
+####seurat
+###
+rm(list=ls())
+dev.off()
+library(Seurat)
+library(dplyr)
+library(Matrix)
+dir()
+pbmc.data<-read.table("3D_total_Count.txt",header = T,row.names = 1,sep="\t")
+###
+mat<-pbmc.data
+head(pbmc.data)
+
+ES<-mat[,2401:2800]
+matnoES<-mat[,-(2401:2800)]
+
+cd34<-matnoES[which(rownames(matnoES)=="CD34"),]
+colnames(cd34)
+
+cd<-as.data.frame(t(cd34))
+cd$name<-rownames(cd)
+
+cd2<-as.data.frame(cd[which(cd$CD34>0),])
+mat2noES<-as.data.frame(t(matnoES))
+#rownames(mat2noES)
+
+dg<-mat2noES[cd2$name,]
+rownames(dg)
+DG<-as.data.frame(t(dg))
+rownames(DG)
+rownames(ES)
+
+all<-cbind(DG,ES)
+colnames(all)
+
+all1<-all[rowMeans(all[,1:1558])!=0,]
+
+
+##
+s1<-as.data.frame(t(all1))
+# s2<-as.data.frame(s1[which(s1$GAPDH>0),])
+# s3<-as.data.frame(s1[which(s1$ACTB>0),])
+
+s5<-as.data.frame(s1[which(s1$GAPDH + s1$ACTB>0),])
+rownames(s5)
+
+
+alldg<-as.data.frame(t(s5))
+
+colnames(alldg)
+
+D7EB<-paste(c("D07EB_"),1:120,sep="")
+D73D<-paste(c("D073D_"),1:44,sep="")
+D10EB<-paste(c("D10EB_"),1:210,sep="")
+D103D<-paste(c("D103D_"),1:203,sep="")
+D14EB<-paste(c("D14EB_"),1:111,sep="")
+D143D<-paste(c("D143D_"),1:159,sep="")
+HSC<-paste(c("HSC_"),1:255,sep="")
+ES<-paste(c("ES_"),1:390,sep="")
+name<-c(D7EB,D73D,D10EB,D103D,D14EB,D143D,HSC,ES)
+length(name)
+name
+
+colnames(alldg)<-name
+alldg[1:5,1:5]
+
+###
+pbmc.data[1:5,1:5]
+
+pbmc <- new("seurat", raw.data = alldg)
+pbmc <- Setup(pbmc, min.cells = 10, min.genes = 800, do.logNormalize = T, total.expr = 1e4, project = "HSC")
+
+pbmc <- MeanVarPlot(pbmc ,fxn.x = expMean, fxn.y = logVarDivMean, x.low.cutoff = 0.0125, x.high.cutoff = 3, y.cutoff = 0.5, do.contour = F)
+length(pbmc@var.genes)
+
+##pca
+pbmc <- PCA(pbmc, pc.genes = pbmc@var.genes, do.print = TRUE, pcs.print = 5, genes.print = 5)
+pbmc <- ProjectPCA(pbmc)
+PrintPCA(pbmc, pcs.print = 1:5, genes.print = 5, use.full = TRUE)
+VizPCA(pbmc, 1:2)
+PCAPlot(pbmc, 1, 2,pt.size=3)
+PCAPlot(pbmc, 2, 3)
+
+PCHeatmap(pbmc, pc.use = 1, cells.use = 50, do.balanced = TRUE)
+PCHeatmap(pbmc, pc.use = 2, cells.use = 50, do.balanced = TRUE)
+#PCHeatmap(pbmc, pc.use = 1, cells.use = 50, do.balanced = T,label.columns = FALSE)
+
+
+pbmc <- FindClusters(pbmc, pc.use = 1:10, resolution = 0.6, print.output = 0, save.SNN = T)
+
+pbmc <- RunTSNE(pbmc, dims.use = 1:10, do.fast = T)
+TSNEPlot(pbmc,pt.size=3)
+
+##find subtype
+pbmc@ident
+x<-as.data.frame(pbmc@ident)
+gene<-as.data.frame(row.names(x))
+yy<-data.frame(gene,x)
+aa0<-as.data.frame(yy[yy$pbmc.ident=="0",])
+aa1<-as.data.frame(yy[yy$pbmc.ident=="1",])
+aa2<-as.data.frame(yy[yy$pbmc.ident=="2",])
+aa3<-as.data.frame(yy[yy$pbmc.ident=="3",])
+aa4<-as.data.frame(yy[yy$pbmc.ident=="4",])
+aa5<-as.data.frame(yy[yy$pbmc.ident=="5",])
+aa6<-as.data.frame(yy[yy$pbmc.ident=="6",])
+head(b)
+
+write.csv(x,"all_samples_group6.csv")
+
+colnames(b)
+##draw pictures
+current.cluster.ids <- c(0, 1, 2, 3, 4, 5, 6)
+new.cluster.ids <- c("P1_BR","P2P3_R1", "P2P3_R2","P1_BR_P2P3_R1","P1_BR_P2P3_R2","P2P3_B3")
+pbmc@ident <- plyr::mapvalues(pbmc@ident, from = current.cluster.ids, to = new.cluster.ids)
+TSNEPlot(pbmc, do.label = T, pt.size = 3)
+
+#修改ID
+current.cluster.ids <- c("P1_BR","P2P3_R1", "P2P3_R2","P1_BR_P2P3_R1","P1_BR_P2P3_R2","P2P3_B3")
+new.cluster.ids <- c("P1_BR","P2P3_R1", "P2P3_R2","P1_BR_P2P3_R1","P1_BR_P2P3_R2","P2P3_R3")
+pbmc@ident <- plyr::mapvalues(pbmc@ident, from = current.cluster.ids, to = new.cluster.ids)
+TSNEPlot(pbmc, do.label = T, pt.size = 3)
+
+##before analysis
+
+VlnPlot(pbmc, "ACTB")
+gene<-toupper(x=c("Actb","Gapdh","Kit", "Procr","Ptprc","Itgam","Cd47","Cd34","Flt3","Erg","Myb",
+                  "Hoxb4"))
+VlnPlot(pbmc, gene)
+
+CD<-toupper(x=c("Cd48","Pecam1","Gata2","Meis1","Cd164","Cd55","Cd63","Cd69","Cd44","Cd53","Cd52",
+                "Cd79b","Cd81","Cd93","Ctnna1"))
+VlnPlot(pbmc, CD)
+##"Procr "CD201"
+##"Ptprc"CD45"
+##Itgam mac1
+stemgene<-toupper(x=c(c("Bmi1","Lmo2","Etv3","Etv6","Runx1","Sox4","Atg7","Hif1a","Hmmr","Itga2b","Itgb1","Itga4")))
+VlnPlot(pbmc,stemgene)
+
+VlnPlot(pbmc,c("ACTB","GAPDH","CD34","NANOG","POU5F1","SOX2","THY1","KDR","CD38","MYB","SPN","CSF3R",
+               "FTO","RUNX1","SPI1","FTO","ALKBH5","METTL3","METTL14","WTAP","YTHDF1","YTHDF2","YTHDF3","YTHDC1"))
+#####2017
+####
+VlnPlot(pbmc, c("Actb","Gapdh","Ly6a","Kit", "Procr","Ptprc","Itgam","Cd47","Cd34","Flt3","Erg","Myb","Hoxb4","Cd48","Slamf1","Pecam1","Gata2","Meis1","Cd164","Cd55","Cd63","Cd69","Cd44","Cd53","Cd52","Cd79b","Cd81","Cd93","Ctnna1","Bmi1","Lmo2","Etv3","Etv6","Runx1","Sox4","Atg7","Hif1a","Hmmr","Itga2b","Itgb1","Itga4","Cd24a"))
+
+VlnPlot(pbmc,c("FTO","ASB2","RARA"))
+
+VlnPlot(pbmc,c("PECAM1","CDH5","CDH1","CDH2","CDH4","CDH13","CDH3"))
+
+#E :  CD31= PECAM1 ,CD144 =  CDH5 
+VlnPlot(pbmc,c("PECAM1","CDH5","CD34","SPN","NT5E","CXCR4","THY1"))
+#CD43 SPN
+#CD73 NT5E
+
+dim(alldg)
+##
+##summary
+VlnPlot(pbmc, c("PTPRD","PTPN13","DMD","CDH13","IL1RAPL1", "PTMA","CD74","EEF1A1","MALAT1"))
+VlnPlot(pbmc, c("KLF6","HLA-DRA","TPT1","TCL1A","EZR","ATP5B","CD34","PAX5","MME","Itgb1"))
+VlnPlot(pbmc,c("ACTB","GAPDH"))
+VlnPlot(pbmc,c("CD47"))
+
+FeaturePlot(pbmc, "CD19",cols.use = c("grey","blue"),pt.size = 2)
+FeaturePlot(pbmc, c("CD19","MME"),cols.use = c("grey","red"),pt.size=2)
+TSNEPlot(pbmc, do.label = F, pt.size = 3)
+save(pbmc, file = "cart.Robj")      
+
+FeaturePlot(pbmc, "CD47",cols.use = c("grey","blue"),pt.size = 2)
+
+##find marks
+cluster1.markers <- FindMarkers(pbmc, ident.1 = "P1_BR", min.pct = 0.25)
+print(head(cluster1.markers, 10))
+VlnPlot(pbmc,c("DAD1","NEGR1","TCF4","RNF220"))
+
+cluster2.markers <- FindMarkers(pbmc, ident.1 = "P2P3_R1", min.pct = 0.25)
+print(head(cluster2.markers, 10))
+VlnPlot(pbmc,c("HBD","PCDH9","MT-ATP6","PLCB1"))
+
+cluster3.markers <- FindMarkers(pbmc, ident.1 = "P2P3_R2", min.pct = 0.25)
+print(head(cluster3.markers, 10))
+VlnPlot(pbmc,c("AKAP12","MME","NFKBIA","FBLN7"))
+
+cluster4.markers <- FindMarkers(pbmc, ident.1 = "P1_BR_P2P3_R1", min.pct = 0.25)
+print(head(cluster4.markers, 10))
+VlnPlot(pbmc,c("PTMA","CD74","EEF1A1","MALAT1"))
+
+cluster5.markers <- FindMarkers(pbmc, ident.1 = "P1_BR_P2P3_R2", min.pct = 0.25)
+print(head(cluster5.markers, 10))
+VlnPlot(pbmc,c("DLG2","GRID2","EYS","HMGA2"))
+
+cluster6.markers <- FindMarkers(pbmc, ident.1 = "P2P3_R3", min.pct = 0.25)
+print(head(cluster6.markers, 10))
+VlnPlot(pbmc,c("PTMA","CD74","CD34","CTR9"))
+
+FeaturePlot(pbmc, c("PCDH9"),cols.use = c("grey","blue"))
+FeaturePlot(pbmc, c("DAD1","NEGR1","RNF220","NFKBIA","AKAP12","DMD","PTPRD","PTPN13","CD34"),cols.use = c("grey","blue"))
+
+
+##
+pbmc.markers <- FindAllMarkers(pbmc, only.pos = TRUE, min.pct = 0.25, thresh.use = 0.25)
+pbmc.markers %>% group_by(cluster) %>% top_n(2, avg_diff)
+pbmc.markers %>% group_by(cluster) %>% top_n(8, avg_diff) -> top8
+DoHeatmap(pbmc, genes.use = top8$gene, order.by.ident = TRUE, slim.col.label = T, remove.key = TRUE)
+??DoHeatmap
+
+##do.return = TRUE 为生成表格
+#a<-DoHeatmap(pbmc, genes.use = top8$gene, order.by.ident = TRUE, slim.col.label = T, remove.key = TRUE, do.return = TRUE)
+
+bbbb <- colSums(!!b[,1:800])
+c<-b[rowMeans(b[,1:800]) !=0,] ###去除假基因 
+d<-b[rowSums(!!b[,1:800])>20,]
+head(d)
+dim(d)
+
+ddd <- colSums(!!d[,1:800])
+barplot(ddd)
+boxplot(ddd)
+mean(ddd)
+
+length(which(ddd>2000))
+length(which(ddd<2000))
+length(which(ddd==2000))
+
+min(ddd)
+max(ddd)
+
+xxxx<-as.data.frame(ddd)
+lou<-d[,which(xxxx$ddd>2000)]
+
+bb<-xxxx[1:400,]
+mean(bb)
+aa<-xxxx[401:800,]
+mean(aa)
+
+####zhouxia
+zx<-read.table("zhouxia_800cells_dg.txt",header = T,row.names = 1,sep="\t")
+zz<-zx[rowSums(!!zx[,1:800])>20,]
+dddd <- colSums(!!zz[,1:800])
+barplot(dddd)
+boxplot(dddd)
+mean(dddd)
+
+xxxx<-as.data.frame(dddd)
+yy<-d[,which(xxxx$dddd>2000)]
+
+bb<-xxxx[1:400,]
+mean(bb)
+aa<-xxxx[401:800,]
+mean(aa)
+
+##zhouxia analysis
+dir()
+zxb<-read.table("zhouxia_B_CD19.txt",header = T,row.names = 1,sep="\t")
+zz<-zxb[rowSums(!!zxb[,1:42])>3,]
+dddd <- colSums(!!zz[,1:42])
+barplot(dddd)
+boxplot(dddd)
+mean(dddd)
+
+xxxx<-as.data.frame(dddd)
+yy<-zz[,which(xxxx$dddd>1000)]
+
+yy[rownames(yy)=="CD19",]
+zxb[rownames(zxb)=="CD19",]
+
+###zhouxia zyc
+dir()
+
+zyc<-read.table("zhouxia589.csv",header = T,row.names = 1,sep=",")
+zz<-zyc[rowSums(!!zyc[,1:589])>20,]
+dddd <- colSums(!!zz[,1:589])
+barplot(dddd)
+boxplot(dddd)
+mean(dddd)
+
+xxxx<-as.data.frame(dddd)
+yy<-zz[,which(xxxx$dddd>1000)]
+colnames(yy)
+
+write.table(yy,"zhouxiaz_filter.txt",sep = "\t")
+BB<-yy[,1:94]
+colnames(BB)
+write.table(BB,"zhouxiaz_filte_B.txt",sep = "\t")
+
+XX<-as.data.frame(colSums(BB[,1:94]))
+
+AA<-yy[,95:339]
+colnames(AA)
+write.table(AA,"zhouxiaz_filte_R.txt",sep = "\t")
+
+###normalizie for BB by DESEQ2
+colnames(yy)
+group<-as.data.frame(c(rep("B",94),rep("R",245)))
+
+group_list=group$`c(rep("B", 94), rep("R", 245))`
+
+colData <- data.frame(row.names=colnames(yy), group_list=group_list)
+
+
+## DESeq 标准化
+
+source("http://bioconductor.org/biocLite.R")
+biocLite("RSQLite")
+biocLite("digest")
+biocLite("DESeq2")
+options(BioC_mirror="http://mirrors.ustc.edu.cn/bioc/")
+library(DESeq2)
+dds <- DESeqDataSetFromMatrix(countData = yy,
+                              colData = colData,
+                              design = ~ group_list)
+
+
+dds2 <- DESeq(dds)  
+resultsNames(dds2)
+rld <- rlogTransformation(dds2) 
+exprSet_new=assay(rld)
+
+hist(yy)
+hist(exprSet_new)
+
+###scale zhouxia before
+dir()
+zyc_f_b<-read.table("zhouxiaz_filte_B.txt",header = T,row.names = 1,sep="\t")
+head(zyc_f_b)
+zyc_b_new<-scale(zyc_f_b)
+hist(zyc_b_new[rownames(zyc_b_new)=="GAPDH",])
+boxplot(zyc_b_new[rownames(zyc_b_new)=="GAPDH",])
+barplot(zyc_b_new[rownames(zyc_b_new)=="GAPDH",])
+
+#
+pbmc <- new("seurat", raw.data = zyc_b_new)
+pbmc <- Setup(pbmc, min.cells = 3, min.genes = 500, do.logNormalize = F, total.expr = 1e4, project = "Zhouxia")
+
+pbmc <- MeanVarPlot(pbmc ,fxn.x = expMean, fxn.y = logVarDivMean, x.low.cutoff = 0.0125, x.high.cutoff = 3, y.cutoff = 0.5, do.contour = F)
+length(pbmc@var.genes)
+
+##pca
+pbmc <- PCA(pbmc, pc.genes = pbmc@var.genes, do.print = TRUE, pcs.print = 5, genes.print = 5)
+pbmc <- ProjectPCA(pbmc)
+PrintPCA(pbmc, pcs.print = 1:5, genes.print = 5, use.full = TRUE)
+VizPCA(pbmc, 1:2)
+PCAPlot(pbmc, 1, 2,pt.size=3)
+PCAPlot(pbmc, 2, 3)
+
+PCHeatmap(pbmc, pc.use = 1, cells.use = 50, do.balanced = TRUE)
+PCHeatmap(pbmc, pc.use = 2, cells.use = 50, do.balanced = TRUE)
+#PCHeatmap(pbmc, pc.use = 1, cells.use = 50, do.balanced = T,label.columns = FALSE)
+
+
+pbmc <- FindClusters(pbmc, pc.use = 1:10, resolution = 0.6, print.output = 0, save.SNN = T)
+
+pbmc <- RunTSNE(pbmc, dims.use = 1:10, do.fast = T)
+TSNEPlot(pbmc,pt.size=3)
+
+
+##
+###scale zhouxia relapse
+dir()
+zyc_f_r<-read.table("zhouxiaz_filte_R.txt",header = T,row.names = 1,sep="\t")
+head(zyc_f_r)
+zyc_r_new<-scale(zyc_f_r)
+hist(zyc_r_new[rownames(zyc_r_new)=="GAPDH",])
+boxplot(zyc_r_new[rownames(zyc_r_new)=="GAPDH",])
+barplot(zyc_r_new[rownames(zyc_r_new)=="GAPDH",])
+
+#
+pbmc <- new("seurat", raw.data = zyc_r_new)
+pbmc <- Setup(pbmc, min.cells = 3, min.genes = 500, do.logNormalize = F, total.expr = 1e4, project = "Zhouxia")
+
+pbmc <- MeanVarPlot(pbmc ,fxn.x = expMean, fxn.y = logVarDivMean, x.low.cutoff = 0.0125, x.high.cutoff = 3, y.cutoff = 0.5, do.contour = F)
+length(pbmc@var.genes)
+
+##pca
+pbmc <- PCA(pbmc, pc.genes = pbmc@var.genes, do.print = TRUE, pcs.print = 5, genes.print = 5)
+pbmc <- ProjectPCA(pbmc)
+PrintPCA(pbmc, pcs.print = 1:5, genes.print = 5, use.full = TRUE)
+VizPCA(pbmc, 1:2)
+PCAPlot(pbmc, 1, 2,pt.size=3)
+PCAPlot(pbmc, 2, 3)
+
+PCHeatmap(pbmc, pc.use = 1, cells.use = 50, do.balanced = TRUE)
+PCHeatmap(pbmc, pc.use = 2, cells.use = 50, do.balanced = TRUE)
+#PCHeatmap(pbmc, pc.use = 1, cells.use = 50, do.balanced = T,label.columns = FALSE)
+
+
+pbmc <- FindClusters(pbmc, pc.use = 1:10, resolution = 0.6, print.output = 0, save.SNN = T)
+
+pbmc <- RunTSNE(pbmc, dims.use = 1:10, do.fast = T)
+TSNEPlot(pbmc,pt.size=3)
+
+
+##C1_analysis_new
+
+# pbmc.data
+# 
+# pbmcNeican<-pbmc.data[rowMeans(pbmc.data[,1:3200])!=0,]
+# 
+# ##
+# s1<-as.data.frame(t(pbmcNeican))
+# # s2<-as.data.frame(s1[which(s1$GAPDH>0),])
+# # s3<-as.data.frame(s1[which(s1$ACTB>0),])
+# 
+# s5<-as.data.frame(s1[which(s1$GAPDH + s1$ACTB>0),])
+# rownames(s5)
+# 
+# dgneican<-as.data.frame(t(s5))
+# dim(dgneican)
+# colnames(dgneican)
+# 
+# ##
+# ##1:375 D7EB
+
+s6<-as.data.frame(s1[which(s1$GAPDH>0 & s1$ACTB>0),])
+dgneican2<-as.data.frame(t(s6))
+dim(dgneican2)
+colnames(dgneican2)
+##1:319 D7EB  319
+##320-564 D73D 245
+
+##565-802 D10EB 238
+##803- 1076 D103D 274
+
+##1077-1291 D14EB 215
+##1292- 1436 D143D 145
+
+##1437-1792 ES   356
+##1793-2052 HSC  260
+
+
+D7EB<-paste(c("D07EB_"),1:319,sep="")
+D73D<-paste(c("D073D_"),1:245,sep="")
+D10EB<-paste(c("D10EB_"),1:238,sep="")
+D103D<-paste(c("D103D_"),1:274,sep="")
+D14EB<-paste(c("D14EB_"),1:215,sep="")
+D143D<-paste(c("D143D_"),1:145,sep="")
+ES<-paste(c("ES_"),1:356,sep="")
+HSC<-paste(c("HSC_"),1:260,sep="")
+
+name<-c(D7EB,D73D,D10EB,D103D,D14EB,D143D,ES,HSC)
+colnames(dgneican2)<-name
+
+write.table(dgneican2,"20180201dg_matrix.csv",sep=",")
+###
+rm(list=ls())
+dev.off()
+mat<-read.table("20180201dg_matrix.csv",sep=",",header = T,row.names = 1)
+colnames(mat)
+##1:319 D7EB  319
+##320-564 D73D 245
+
+##565-802 D10EB 238
+##803- 1076 D103D 274
+
+##1077-1291 D14EB 215
+##1292- 1436 D143D 145
+
+##1437-1792 ES   356
+##1793-2052 HSC  260
+
+D7EB<-mat[,1:319]
+D73D<-mat[,320:564]
+D10EB<-mat[,565:802]
+D103D<-mat[,803:1076]
+D14EB<-mat[,1077:1291]
+D143D<-mat[,1292:1436]
+ES<-mat[,1437:1792]
+HSC<-mat[,1793:2052]
+
+TwoD<-cbind(ES,D7EB,D10EB,D14EB,HSC)
+colnames(TwoD)
+ThreeD<-cbind(ES,D73D,D103D,D143D,HSC)
+colnames(ThreeD)
+###
+library(Seurat)
+library(dplyr)
+library(Matrix)
+
+
+pbmc <- new("seurat", raw.data = TwoD)
+pbmc <- Setup(pbmc, min.cells = 10, min.genes = 800, do.logNormalize = T, total.expr = 1e4, project = "HSC")
+
+pbmc <- MeanVarPlot(pbmc ,fxn.x = expMean, fxn.y = logVarDivMean, x.low.cutoff = 0.0125, x.high.cutoff = 3, y.cutoff = 0.5, do.contour = F)
+length(pbmc@var.genes)
+
+##pca
+pbmc <- PCA(pbmc, pc.genes = pbmc@var.genes, do.print = TRUE, pcs.print = 5, genes.print = 5)
+pbmc <- ProjectPCA(pbmc)
+PrintPCA(pbmc, pcs.print = 1:5, genes.print = 5, use.full = TRUE)
+VizPCA(pbmc, 1:2)
+PCAPlot(pbmc, 1, 2,pt.size=3)
+PCAPlot(pbmc, 2, 3)
+
+PCHeatmap(pbmc, pc.use = 1, cells.use = 50, do.balanced = TRUE)
+PCHeatmap(pbmc, pc.use = 2, cells.use = 50, do.balanced = TRUE)
+#PCHeatmap(pbmc, pc.use = 1, cells.use = 50, do.balanced = T,label.columns = FALSE)
+
+
+#pbmc <- FindClusters(pbmc, pc.use = 1:5, resolution = 0.6, print.output = 0, save.SNN = T)
+
+pbmc <- RunTSNE(pbmc, dims.use = 1:5, do.fast = T)
+TSNEPlot(pbmc,pt.size=3)
+
+# ##find subtype
+# pbmc@ident
+# x<-as.data.frame(pbmc@ident)
+# gene<-as.data.frame(row.names(x))
+# yy<-data.frame(gene,x)
+# aa0<-as.data.frame(yy[yy$pbmc.ident=="0",])
+# aa1<-as.data.frame(yy[yy$pbmc.ident=="1",])
+# aa2<-as.data.frame(yy[yy$pbmc.ident=="2",])
+# aa3<-as.data.frame(yy[yy$pbmc.ident=="3",])
+# aa4<-as.data.frame(yy[yy$pbmc.ident=="4",])
+# aa5<-as.data.frame(yy[yy$pbmc.ident=="5",])
+# aa6<-as.data.frame(yy[yy$pbmc.ident=="6",])
+# head(b)
+# 
+# write.csv(x,"all_samples_group6.csv")
+# 
+# colnames(b)
+# ##draw pictures
+# current.cluster.ids <- c(0, 1, 2, 3, 4, 5, 6)
+# new.cluster.ids <- c("P1_BR","P2P3_R1", "P2P3_R2","P1_BR_P2P3_R1","P1_BR_P2P3_R2","P2P3_B3")
+# pbmc@ident <- plyr::mapvalues(pbmc@ident, from = current.cluster.ids, to = new.cluster.ids)
+# TSNEPlot(pbmc, do.label = T, pt.size = 3)
+# 
+# #修改ID
+# current.cluster.ids <- c("P1_BR","P2P3_R1", "P2P3_R2","P1_BR_P2P3_R1","P1_BR_P2P3_R2","P2P3_B3")
+# new.cluster.ids <- c("P1_BR","P2P3_R1", "P2P3_R2","P1_BR_P2P3_R1","P1_BR_P2P3_R2","P2P3_R3")
+# pbmc@ident <- plyr::mapvalues(pbmc@ident, from = current.cluster.ids, to = new.cluster.ids)
+# TSNEPlot(pbmc, do.label = T, pt.size = 3)
+# 
+# ##before analysis
+
+VlnPlot(pbmc,c("ACTB","GAPDH","POU5F1","SOX2","NANOG","PECAM1","CDH5","NT5E","PROCR"))
+
+VlnPlot(pbmc,c("CD34","SPN","MYB","CSF3R","RUNX1","SPI1","HOXA5","PTPRC","LMO2"))
+
+
+####ThreeD
+pbmc <- new("seurat", raw.data = ThreeD)
+pbmc <- Setup(pbmc, min.cells = 10, min.genes = 800, do.logNormalize = T, total.expr = 1e4, project = "HSC")
+
+pbmc <- MeanVarPlot(pbmc ,fxn.x = expMean, fxn.y = logVarDivMean, x.low.cutoff = 0.0125, x.high.cutoff = 3, y.cutoff = 0.5, do.contour = F)
+length(pbmc@var.genes)
+
+##pca
+pbmc <- PCA(pbmc, pc.genes = pbmc@var.genes, do.print = TRUE, pcs.print = 5, genes.print = 5)
+pbmc <- ProjectPCA(pbmc)
+PrintPCA(pbmc, pcs.print = 1:5, genes.print = 5, use.full = TRUE)
+VizPCA(pbmc, 1:2)
+PCAPlot(pbmc, 1, 2,pt.size=3)
+PCAPlot(pbmc, 2, 3)
+
+PCHeatmap(pbmc, pc.use = 1, cells.use = 50, do.balanced = TRUE)
+PCHeatmap(pbmc, pc.use = 2, cells.use = 50, do.balanced = TRUE)
+#PCHeatmap(pbmc, pc.use = 1, cells.use = 50, do.balanced = T,label.columns = FALSE)
+
+
+#pbmc <- FindClusters(pbmc, pc.use = 1:5, resolution = 0.6, print.output = 0, save.SNN = T)
+
+pbmc <- RunTSNE(pbmc, dims.use = 1:10, do.fast = T)
+TSNEPlot(pbmc,pt.size=3)
+
+# ##find subtype
+# pbmc@ident
+# x<-as.data.frame(pbmc@ident)
+# gene<-as.data.frame(row.names(x))
+# yy<-data.frame(gene,x)
+# aa0<-as.data.frame(yy[yy$pbmc.ident=="0",])
+# aa1<-as.data.frame(yy[yy$pbmc.ident=="1",])
+# aa2<-as.data.frame(yy[yy$pbmc.ident=="2",])
+# aa3<-as.data.frame(yy[yy$pbmc.ident=="3",])
+# aa4<-as.data.frame(yy[yy$pbmc.ident=="4",])
+# aa5<-as.data.frame(yy[yy$pbmc.ident=="5",])
+# aa6<-as.data.frame(yy[yy$pbmc.ident=="6",])
+# head(b)
+# 
+# write.csv(x,"all_samples_group6.csv")
+# 
+# colnames(b)
+# ##draw pictures
+# current.cluster.ids <- c(0, 1, 2, 3, 4, 5, 6)
+# new.cluster.ids <- c("P1_BR","P2P3_R1", "P2P3_R2","P1_BR_P2P3_R1","P1_BR_P2P3_R2","P2P3_B3")
+# pbmc@ident <- plyr::mapvalues(pbmc@ident, from = current.cluster.ids, to = new.cluster.ids)
+# TSNEPlot(pbmc, do.label = T, pt.size = 3)
+# 
+# #修改ID
+# current.cluster.ids <- c("P1_BR","P2P3_R1", "P2P3_R2","P1_BR_P2P3_R1","P1_BR_P2P3_R2","P2P3_B3")
+# new.cluster.ids <- c("P1_BR","P2P3_R1", "P2P3_R2","P1_BR_P2P3_R1","P1_BR_P2P3_R2","P2P3_R3")
+# pbmc@ident <- plyr::mapvalues(pbmc@ident, from = current.cluster.ids, to = new.cluster.ids)
+# TSNEPlot(pbmc, do.label = T, pt.size = 3)
+# 
+# ##before analysis
+
+VlnPlot(pbmc,c("ACTB","GAPDH","POU5F1","SOX2","NANOG","PECAM1","CDH5","NT5E","PROCR"))
+
+VlnPlot(pbmc,c("CD34","SPN","MYB","CSF3R","RUNX1","SPI1","HOXA5","PTPRC","LMO2"))
+
+VlnPlot(pbmc,c("THY1","FTO"))
+#################################
+#VlnPlot(pbmc,"PROCR")  #PROCR CD201
+#SPN CD43
+#NT5E CD73
+#"KDR"VEGFR"CD38","MYB","SPN","CSF3R","RUNX1","SPI1"
+
+
+VlnPlot(pbmc, "ACTB")
+gene<-toupper(x=c("Actb","Gapdh","Kit", "Procr","Ptprc","Itgam","Cd47","Cd34","Flt3","Erg","Myb",
+                  "Hoxb4"))
+VlnPlot(pbmc, gene)
+
+CD<-toupper(x=c("Cd48","Pecam1","Gata2","Meis1","Cd164","Cd55","Cd63","Cd69","Cd44","Cd53","Cd52",
+                "Cd79b","Cd81","Cd93","Ctnna1"))
+VlnPlot(pbmc, CD)
+##"Procr "CD201"
+##"Ptprc"CD45"
+##Itgam mac1
+stemgene<-toupper(x=c(c("Bmi1","Lmo2","Etv3","Etv6","Runx1","Sox4","Atg7","Hif1a","Hmmr","Itga2b","Itgb1","Itga4")))
+VlnPlot(pbmc,stemgene)
+
+VlnPlot(pbmc,c("ACTB","GAPDH","CD34","NANOG","POU5F1","SOX2","THY1","KDR","CD38","MYB","SPN","CSF3R",
+               "FTO","RUNX1","SPI1","FTO","ALKBH5","METTL3","METTL14","WTAP","YTHDF1","YTHDF2","YTHDF3","YTHDC1"))
+
+
+#####2017
+
+VlnPlot(pbmc,c("FTO","ASB2","RARA"))
+
+VlnPlot(pbmc,c("PECAM1","CDH5","CDH1","CDH2","CDH4","CDH13","CDH3"))
+
+#E :  CD31= PECAM1 ,CD144 =  CDH5 
+VlnPlot(pbmc,c("PECAM1","CDH5","CD34","SPN","NT5E","CXCR4","THY1"))
+#CD43 SPN
+#CD73 NT5E
+
+VlnPlot(pbmc,c("PTPRC"))
+VlnPlot(pbmc,c("FTO"))
+
+###################################Deseq
+Td<-as.data.frame(t(ThreeD))
+ES<-as.data.frame(Td[which(Td$POU5F1>0 & Td$SOX2>0 &Td$NANOG>0),])
+rownames(ES)
+E<-as.data.frame(Td[which(Td$CD34==0 & Td$SPN>0 &Td$CDH5>0 ),])
+rownames(E)
+H<-as.data.frame(Td[which(Td$CD34>0 & Td$SPN==0 &Td$CDH5>0 & Td$NT5E==0 &Td$CXCR4==0 &Td$KIT>0),])
+rownames(H)
+
+hs<-as.data.frame(Td[which(Td$CD34>0 & Td$SPN>0  & Td$ITGA6>0 & Td$CD38==0 & Td$PTPRC>0 &Td$POU5F1==0),])
+rownames(hs) ##delete ES
+
+length(intersect(rownames(E),rownames(H)))
+intersect(rownames(H),rownames(hs))
+
+name<-intersect(rownames(E),rownames(H))
+EH<-Td[name,]
+
+mean(E$FTO)
+mean(H$FTO)
+
+boxplot(E$FTO)
+boxplot(H$FTO)
+boxplot(E$FTO,H$FTO)
+boxplot(E$ALKBH5,H$ALKBH5)
+
+ES1<-as.data.frame(t(ES))
+E1<-as.data.frame(t(E))
+H1<-as.data.frame(t(H))
+hs1<-as.data.frame(t(hs))
+
+allsinglecell<-cbind(ES1,E1,H1,hs1)
+colnames(allsinglecell)
+
+########DESEQ2 20180206
+TwoDmat<-as.data.frame(t(TwoD))
+Select<-TwoDmat[which(TwoDmat$FTO>0),]
+Select$FTO
+
+exprSet<-as.data.frame(t(Select))
+colnames(exprSet)
+
+##制作表达矩阵
+group<-as.data.frame(colnames(exprSet))
+rownames(group)<-colnames(exprSet)
+fenzu<-c(rep("ES",153),rep("D7EB",147),rep("D10EB",107),rep("D14EB",106),rep("hs",34))
+group$fz<-fenzu
+
+group
+
+group_list=group$fz  ###指明分组信息即可；
+##做好分组因子即可
+
+colData <- data.frame(row.names=colnames(exprSet), group_list=group_list)
+##制作好数据框
+library(DESeq2)
+dds <- DESeqDataSetFromMatrix(countData = exprSet,
+                              colData = colData,
+                              design = ~ group_list)
+##按照DESeq2方法制作dds对象
+
+dds2 <- DESeq(dds)  ##第二步，直接用DESeq函数即可
+resultsNames(dds2)
+
+res <-  results(dds2, contrast=c("group_list","D7EB","D10EB"))
+## 提取你想要的差异分析结果，我们这里是H组对E组进行比较
+resOrdered <- res[order(res$padj),]
+
+resOrdered[which(rownames(resOrdered)=="FTO"),]
+colnames(allsinglecell)
+
+
+write.table(resOrdered, file="single cell DGE order.xls", sep="\t",quote=F)
+resOrdered=as.data.frame(resOrdered)
+##可以看到程序非常好用！它只对RNA-seq的基因的reads的counts数进行分析，请不要用RPKM等经过了normlization的表达矩阵来分析。
+
+dge<-resOrdered[which(resOrdered$log2FoldChange>1.5 & resOrdered$pvalue <0.05),]
+rownames(dge)
+which(rownames(dge)=="CD")
+##CD40 KIT(CD177)
+
+
+plotMA(resOrdered) ###plotMA()中必须是一个数据框
+
+##值得一提的是DESeq2软件独有的normlization方法！
+rld <- rlogTransformation(dds2)  ## 得到经过DESeq2软件normlization的表达矩阵！
+exprSet_new=assay(rld)
+
+par(cex = 0.7)
+n.sample=ncol(exprSet)
+if(n.sample>40) par(cex = 0.5)    ###40可以修改
+cols <- rainbow(n.sample*1.2)
+par(mfrow=c(2,2))
+##设置图形参数，颜色参数
+boxplot(exprSet, col = cols,main="expression value",las=2)
+boxplot(exprSet_new, col = cols,main="expression value",las=2)
+
+hist(exprSet)
+hist(exprSet_new)
+
+
+############TwoD
+
+Twd<-as.data.frame(t(TwoD))
+TwoES<-as.data.frame(Twd[which(Twd$POU5F1>0 & Twd$SOX2>0 &Twd$NANOG>0),])
+rownames(TwoES)
+#TwoE<-as.data.frame(Twd[which(Twd$CD34==0 & Twd$SPN>0 &Twd$CDH5>0 ),])
+#TwoE<-as.data.frame(Twd[which(Twd$CD34==0 & Twd$SPN>0),])
+TwoE<-as.data.frame(Twd[which(Twd$NANOG==0 & Twd$CD34==0 & Twd$CDH5>0 & Twd$SPN>0),])
+rownames(TwoE)
+
+#special<-Twd["D10EB_30",]
+#special[1,1:10]
+
+TwoH<-as.data.frame(Twd[which(Twd$CD34>0 & Twd$SPN==0 &Twd$CDH5>0 & Twd$NT5E==0 &Twd$CXCR4==0 &Twd$KIT>0),])
+rownames(TwoH)
+
+Twohs<-as.data.frame(Twd[which(Twd$CD34>0 & Twd$SPN>0  & Twd$ITGA6>0 & Twd$CD38==0 & Twd$PTPRC>0 &Twd$POU5F1==0),])
+rownames(Twohs) ##delete ES
+
+# length(intersect(rownames(E),rownames(H)))
+# intersect(rownames(H),rownames(hs))
+# 
+# name<-intersect(rownames(E),rownames(H))
+# EH<-Td[name,]
+
+mean(E$FTO)
+mean(H$FTO)
+
+boxplot(E$FTO)
+boxplot(H$FTO)
+boxplot(E$FTO,H$FTO)
+boxplot(E$ALKBH5,H$ALKBH5)
+
+ES2<-as.data.frame(t(TwoES))
+E2<-as.data.frame(t(TwoE))
+H2<-as.data.frame(t(TwoH))
+hs2<-as.data.frame(t(Twohs))
+
+Twodsinglecell<-cbind(ES2,E2,H2,hs2)
+colnames(Twodsinglecell)
+
+TwoexprSet<-Twodsinglecell
+##制作表达矩阵
+Twogroup<-as.data.frame(colnames(TwoexprSet))
+rownames(Twogroup)<-colnames(TwoexprSet)
+fenzu2<-c(rep("ES",216),rep("E",39),rep("H",19),rep("hs",35))
+Twogroup$fz<-fenzu2
+
+
+group_list=Twogroup$fz  ###指明分组信息即可；
+##做好分组因子即可
+
+colData <- data.frame(row.names=colnames(TwoexprSet), group_list=group_list)
+##制作好数据框
+library(DESeq2)
+dds <- DESeqDataSetFromMatrix(countData = TwoexprSet,
+                              colData = colData,
+                              design = ~ group_list)
+##按照DESeq2方法制作dds对象
+
+dds2 <- DESeq(dds)  ##第二步，直接用DESeq函数即可
+resultsNames(dds2)
+
+res <-  results(dds2, contrast=c("group_list","H","E"))
+
+res <-  results(dds2, contrast=c("group_list","hs","H"))
+## 提取你想要的差异分析结果，我们这里是H组对E组进行比较
+resOrdered <- res[order(res$padj),]
+
+dge<-resOrdered[which(resOrdered$log2FoldChange>1.5 & resOrdered$pvalue <0.05),]
+rownames(dge)
+
+resOrdered[which(rownames(resOrdered)=="FTO"),]
+rownames(resOrdered)
+2^0.08
+
+write.table(resOrdered, file="single cell DGE order.xls", sep="\t",quote=F)
+resOrdered=as.data.frame(resOrdered)
+##可以看到程序非常好用！它只对RNA-seq的基因的reads的counts数进行分析，请不要用RPKM等经过了normlization的表达矩阵来分析。
+
+
+which(rownames(dge)=="CD")
+##CD40 KIT(CD177)
+
+
+plotMA(resOrdered) ###plotMA()中必须是一个数据框
+
+##值得一提的是DESeq2软件独有的normlization方法！
+rld <- rlogTransformation(dds2)  ## 得到经过DESeq2软件normlization的表达矩阵！
+exprSet_new=assay(rld)
+
+par(cex = 0.7)
+n.sample=ncol(exprSet)
+if(n.sample>40) par(cex = 0.5)    ###40可以修改
+cols <- rainbow(n.sample*1.2)
+par(mfrow=c(2,2))
+##设置图形参数，颜色参数
+boxplot(exprSet, col = cols,main="expression value",las=2)
+boxplot(exprSet_new, col = cols,main="expression value",las=2)
+
+hist(exprSet)
+hist(exprSet_new)
+
+
+TryE<-TwoE[which(TwoE$FTO>0),]
+TryH<-TwoH[which(TwoH$FTO>0),]
+
+mean(TwoE$FTO)
+mean(TryH$FTO)
+
+###
+rm(list=ls())
+dev.off()
+setwd("/home/hcb-lab/桌面/2018lixia/")
+dir()
+mat<-read.table("20180201dg_matrix.csv",sep=",",row.names = 1,header = T)
+colnames(mat)
+mat[1:3,1:3]
+
+D7EB<-mat[,1:319]
+D73D<-mat[,320:564]
+D10EB<-mat[,565:802]
+D103D<-mat[,803:1076]
+D14EB<-mat[,1077:1291]
+D143D<-mat[,1292:1436]
+ES<-mat[,1437:1792]
+HSC<-mat[,1793:2052]
+
+TwoD<-cbind(ES,D7EB,D10EB,D14EB,HSC)
+colnames(TwoD)
+ThreeD<-cbind(ES,D73D,D103D,D143D,HSC)
+colnames(ThreeD)
+
+t(ES)
+
+t(D7EB)
+t(D10EB)    
+t(D14EB0
+
+      
+t(D73D)
+t(D103D)
+t(D143D)
+t(HSC)
+
+tpm<-read.table("3D_total_TPM.txt",sep="\t",row.names = 1,header = T)
+
+alltpm<-as.data.frame(t(tpm))
+
+s1<-as.data.frame(alltpm[which(alltpm$GAPDH >0 & alltpm$ACTB>0),])
+rownames(s1)
+
+TwoD7EB<-s1[1:319,]
+TwoD73D<-s1[320:564,]
+TwoD10EB<-s1[565:802,]
+TwoD103D<-s1[803:1076,]
+TwoD14EB<-s1[1077:1291,]
+TwoD143D<-s1[1292:1436,]
+TwoES<-s1[1437:1792,]
+TwoHSC<-s1[1793:2052,]
+
+ESfto<-TwoES[which(TwoES$FTO>0),]
+mean(ESfto$FTO)
+mean(ESfto$ASB2)
+mean(ESfto$RARA)
+
+EB7fto<-TwoD7EB[which(TwoD7EB$FTO>0),]
+mean(EB7fto$FTO)
+mean(EB7fto$ASB2)
+mean(EB7fto$RARA)
+
+EB10fto<-TwoD10EB[which(TwoD10EB$FTO>0),]
+mean(EB10fto$FTO)
+mean(EB10fto$ASB2)
+mean(EB10fto$RARA)
+
+EB14fto<-TwoD14EB[which(TwoD14EB$FTO>0),]
+mean(EB14fto$FTO)
+mean(EB14fto$ASB2)
+mean(EB14fto$RARA)
+
+HSfto<-TwoHSC[which(TwoHSC$FTO>0),]
+mean(HSfto$FTO)
+mean(HSfto$ASB2)
+mean(HSfto$RARA)
+
+
+#fto<-TwoD7EB[which(TwoD7EB$FTO>0 & TwoD7EB$PECAM1>0 & TwoD7EB$CD34==0 &TwoD7EB$CDH5>0 ),]
+fto1<-TwoD7EB[which(TwoD7EB$FTO>0 & TwoD7EB$PECAM1>0 & TwoD7EB$CDH5>0 ),]
+fto2<-TwoD10EB[which(TwoD10EB$FTO>0 & TwoD10EB$PECAM1>0 & TwoD10EB$CDH5>0 ),]
+fto3<-TwoD14EB[which(TwoD14EB$FTO>0 & TwoD14EB$PECAM1>0 & TwoD14EB$CDH5>0 ),]
+
+
+mean(fto$FTO)
+
+fto[,c("FTO","PECAM1","CDH5","CD34","SPN","NT5E","ITGA6")]
+
+summary(fto$FTO)
+
+boxplot(fto$FTO)
+
+mean(TwoES$ACTB)
+mean(TwoD73D$ACTB)
+mean(TwoD103D$ACTB)
+mean(TwoD143D$ACTB)
+mean(TwoHSC$ACTB)
+
+mean(TwoES$GAPDH)
+mean(TwoD73D$GAPDH)
+mean(TwoD103D$GAPDH)
+mean(TwoD143D$GAPDH)
+mean(TwoHSC$GAPDH)
+
+mean(TwoD7EB$GAPDH)
+mean(TwoD10EB$GAPDH)
+mean(TwoD14EB$GAPDH)
+
+mean(TwoD7EB$ACTB)
+mean(TwoD10EB$ACTB)
+mean(TwoD14EB$ACTB)
+
+vitro<-cbind(D7EB,D10EB,D14EB,D73D,D103D,D143D)
+colnames(vitro)
+
+stem<-cbind(D7EB,D10EB,D14EB,D73D,D103D,D143D,HSC)
+library(Seurat)
+library(dplyr)
+library(Matrix)
+####ThreeD
+pbmc <- new("seurat", raw.data = stem)
+pbmc <- Setup(pbmc, min.cells = 10, min.genes = 800, do.logNormalize = T, total.expr = 1e4, project = "HSC")
+
+pbmc <- MeanVarPlot(pbmc ,fxn.x = expMean, fxn.y = logVarDivMean, x.low.cutoff = 0.0125, x.high.cutoff = 3, y.cutoff = 0.5, do.contour = F)
+length(pbmc@var.genes)
+
+##pca
+pbmc <- PCA(pbmc, pc.genes = pbmc@var.genes, do.print = TRUE, pcs.print = 5, genes.print = 5)
+pbmc <- ProjectPCA(pbmc)
+PrintPCA(pbmc, pcs.print = 1:5, genes.print = 5, use.full = TRUE)
+VizPCA(pbmc, 1:2)
+PCAPlot(pbmc, 1, 2,pt.size=3)
+PCAPlot(pbmc, 2, 3)
+
+PCHeatmap(pbmc, pc.use = 1, cells.use = 50, do.balanced = TRUE)
+PCHeatmap(pbmc, pc.use = 2, cells.use = 50, do.balanced = TRUE)
+#PCHeatmap(pbmc, pc.use = 1, cells.use = 50, do.balanced = T,label.columns = FALSE)
+
+
+pbmc <- FindClusters(pbmc, pc.use = 1:5, resolution = 0.6, print.output = 0, save.SNN = T)
+
+pbmc <- RunTSNE(pbmc, dims.use = 1:10, do.fast = T)
+TSNEPlot(pbmc,pt.size=3)
+
+VlnPlot(pbmc,c("ACTB","GAPDH","PECAM1","CDH5","CD34","SPN","NT5E","PROCR","ITGA6"))
+
+VlnPlot(pbmc,c("CD34","RUNX1","THY1","GATA2","ITGA6","LMO2","HOXA9","TAL1","CXCR4","SPI1","MYB","SPN"))
+
+VlnPlot(pbmc,c("CD34","RUNX1","MYB","SPN","ETV6","LYL1","MEIS1","GATA2","SPI1"))
+
+
+VlnPlot(pbmc,c("CD34","RUNX1","MYB","SPN","ETV6","LYL1","MEIS1","GATA2","SPI1"))
+VlnPlot(pbmc,c("MYC","CEBPG"))
