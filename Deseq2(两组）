@@ -1,0 +1,53 @@
+rm(list=ls())
+setwd("C:/Users/Administrator/Desktop/cart/T/发给Huang_CarT/2017_02_19_tumor/20170209 重要文件")
+
+X<-read.csv("a 82 vs b1_10.csv",header = T)
+INDEX<-duplicated(X$X)
+ab1<-X[!INDEX,]
+AB1<-ab1[,-1]
+row.names(AB1)<-ab1$X
+
+colnames(AB1)
+treatname<-""
+treatname[1:82]<-"A"
+treatname[83:92]<-"B1"
+
+treatment<-as.data.frame(treatname)
+
+library(DESeq2)
+dds <- DESeqDataSetFromMatrix(countData = AB1,
+                              colData = treatment,
+                              design = ~ treatname)
+##按照DESeq2方法制作dds对象,不能存在na值，系统学习这个包。。不表达用0表示，不是NA，注意。。。
+
+###标准化
+norm<-estimateSizeFactors(dds)
+normal_transfor <- normTransform(norm, f=log2, pc=1)
+sizeFactors(norm)
+count_normal <- counts(norm, normalized=TRUE)
+count_log <- log2(count_normal+1) 
+write.table(count_log,file="B2B1 DESeq2_totalGene.normalized.txt",
+            quote=FALSE, sep="\t") #OUTPUT#
+
+
+
+
+dds2 <- DESeq(dds)  ##直接用DESeq函数  标准化？
+resultsNames(dds2)
+
+res <-  results(dds2, contrast=c("treatname","A","B1"))
+# res <-  results(dds2) ###默认情况是后面比前面，B2比A
+#res <-  results(dds2, contrast=c("group_list","C","P"))
+# ## 提取你想要的差异分析结果，我们这里是C组对P组进行比较
+# resOrdered <- res[order(res$padj),]
+
+resOrdered <- res[order(res$padj),]
+
+write.csv(as.data.frame(resOrdered), file="AVSB1 DEseq2_results.csv")
+
+# write.table(resOrdered2, file="dge AB2.CSV", sep=",",quote=F)
+# 
+# diffsig<- subset(resOrdered, padj < 0.1)
+# diffsig2<- subset(diffsig, abs(log2FoldChange)>1)
+
+####
