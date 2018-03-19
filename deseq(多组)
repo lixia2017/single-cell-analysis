@@ -1,0 +1,90 @@
+rm(list=ls())
+
+mycellDesign<-read.table("sampleDesign_13cell.txt",header = T)
+
+##mycellDesign分组：
+## 
+sample	source
+2D1	       D
+2D2	       D
+2D3	       D
+2D4	       D
+3D_CC1	  DCC
+3D_CC2	  DCC
+3D_CC3	  DCC
+3D_LC2	  DLC
+3D_LC3	  DLC
+3D_LC4	  DLC
+P1	       P
+P2	       P
+P3	       P
+##
+
+countTable <- round(a)
+library(DESeq2)
+dds <- DESeqDataSetFromMatrix(countData=countTable, 
+                              colData=mycellDesign, design=~ source)
+dds <- DESeq(dds)
+
+res_DCCvsD <- results(dds,contrast=c("source", "DCC","D"))
+res_DLCvsD <- results(dds,contrast=c("source", "DLC","D"))
+res_DCCvsDLC <- results(dds,contrast=c("source", "DCC","DLC"))
+res_DvsP <- results(dds,contrast=c("source", "D","P"))
+res_DCCvsP <- results(dds,contrast=c("source", "DCC","P"))
+res_DLCvsP <- results(dds,contrast=c("source", "DLC","P"))
+summary(res_DvsP)
+
+resOrdered_DCCvsP <- res_DCCvsP[order(res_DCCvsP$padj), ]
+resSig_DCCvsP <- subset(resOrdered_DCCvsP, padj < 0.05 )
+write.table(resOrdered_DCCvsP, file="DCCvsP_DESeq2_results.txt",sep="\t",quote=F)
+summary(resSig_DvsDLC)
+
+
+###cc_p
+summary(res_DCCvsP)
+summary(resOrdered_DCCvsP)
+nrow(resOrdered_DCCvsP)
+CC_P<-na.omit(resOrdered_DCCvsP)
+nrow(CC_P)
+CC_Psig <- CC_P[abs(CC_P$log2FoldChange > 2) & CC_P$pvalue < 0.01,]
+nrow(CC_Psig)
+write.csv(CC_Psig,"cc vs p fc2 p0.01.csv")
+
+##LC p
+a <- na.omit(res_DLCvsP)
+b <- a[abs(a$log2FoldChange > 2) & a$pvalue < 0.01,]
+nrow(b)
+write.csv(b,"lc vs p fc2 p0.01.csv")
+
+
+##2d p
+nrow(res_DvsP)
+D_P<-na.omit(res_DvsP)
+nrow(D_P)
+D_Psig <- D_P[abs(D_P$log2FoldChange > 2) & D_P$pvalue < 0.01,]
+nrow(D_Psig)
+write.csv(D_Psig,"2D vs p fc2 p0.01.csv")
+
+##Cc d
+nrow(res_DCCvsD)
+D_CC<-na.omit(res_DCCvsD)
+nrow(D_CC)
+D_CCsig <- D_CC[abs(D_CC$log2FoldChange > 2) & D_CC$pvalue < 0.01,]
+nrow(D_CCsig)
+write.csv(D_CCsig,"CC vs 2D fc2 p0.01.csv")
+
+##lc 2d
+nrow(res_DLCvsD)
+D_LC<-na.omit(res_DLCvsD)
+nrow(D_LC)
+D_LCsig <- D_LC[abs(D_LC$log2FoldChange > 2) & D_LC$pvalue < 0.01,]
+nrow(D_LCsig)
+write.csv(D_LCsig,"LC vs 2D fc2 p0.01.csv")
+
+##CC LC
+nrow(res_DCCvsDLC)
+CC_LC<-na.omit(res_DCCvsDLC)
+nrow(CC_LC)
+CC_LCsig <- CC_LC[abs(CC_LC$log2FoldChange > 2) & CC_LC$pvalue < 0.01,]
+nrow(CC_LCsig)
+write.csv(CC_LCsig,"CC vs LC fc2 p0.01.csv")
