@@ -1,3 +1,47 @@
+多组
+rm(list=ls())
+dev.off()
+setwd("/home/hcb-lab/妗岄潰/xyl/xyl_20singlecell_20180314/")
+dir()
+
+
+data<-read.table("20_singlecell_dinggao.txt",header = T,row.names = 1,sep="\t")
+colnames(data)
+
+data<-round(data)
+
+condition<-""
+condition[1:5]<-"P0S"
+condition[6:9]<-"2D"
+condition[10:13]<-"CC"
+condition[14:17]<-"LC"
+condition[18:20]<-"P0"
+
+treatment<-as.data.frame(condition)
+treatment$group<-colnames(data)
+rownames(treatment)<-colnames(data)
+
+treatment$condition ##"P0S" and "POS" 注意0 和 O的差别
+
+library(DESeq2)
+
+dds <- DESeqDataSetFromMatrix(countData = data,
+                              colData = treatment,
+                              design = ~ condition)
+
+dds <- DESeq(dds)
+res_CCvsP0 <- results(dds,contrast=c("condition", "CC","P0"))
+
+res_LCvsP0 <- results(dds,contrast=c("condition", "LC","P0"))
+
+summary(res_CCvsP0)
+resOrdered_CCvsP0 <- res_CCvsP0[order(res_CCvsP0$padj), ]
+
+resSig_CCvsP0 <- subset(resOrdered_CCvsP0, padj < 0.1 )
+write.table(resOrdered_CCvsP0, file="CCvsP0_DESeq2_results.txt",sep="\t",quote=F)
+
+
+#######另外一组代码！！！
 rm(list=ls())
 
 mycellDesign<-read.table("sampleDesign_13cell.txt",header = T)
