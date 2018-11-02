@@ -28,7 +28,7 @@ perl mRNASeqHT_demultiplex.pl –i input –o output
 for i in *fastq
 do
 echo $i
-perl polyA.pl $i ./f/$i"_f.fastq" ./b$i"_bad.fastq" 6 3 
+perl polyA.pl $i ./f/$i"_f.fastq" ./b/$i"_bad.fastq" 6 3 
 done
 
 ５．比对！！！（STAR + featurecounts）
