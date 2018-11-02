@@ -1,3 +1,5 @@
+for bulkseq mHSC SW
+
 hisat2 比对代码，可新建hisat.txt文件，代码如下
 
 #!usr/bin/bash
