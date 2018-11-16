@@ -102,7 +102,7 @@ a=read.table('tmp.txt',sep = '\t',stringsAsFactors = F)
 b<-a[,c(1,2,8)]
 
 library(reshape2)
-fpkm <- dcast(ｂ,formula = V2~V1)
+fpkm <- dcast(b, formula = V2~V1)
 
 row.names(fpkm)<-fpkm$V2
 fpkm<-fpkm[,-1]
