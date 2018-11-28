@@ -19,7 +19,7 @@ perl mRNASeqHT_demultiplex.pl –i input –o output
 ###文件需要解压成fastq文件，切mRNASeq*.pl 大小为11.4kb，而输入 -i 后用tab建自动获取文件夹无效。。。
 ##用fastqc去质检测序质量
 发现周霞，总体来说还好！
-发现SW的：R1质量一遍，R2质量较好！
+发现SW的：R1质量一般，R2质量较好！
 ##13:00 start
 
 4.去ｐｏｌｙＡ的ｐｅｒｌ
@@ -44,6 +44,7 @@ index文件：需要利用基因组文件自己构建；
 mkdir $genomeDir
 STAR --runMode genomeGenerate --genomeDir ./genomeDir --genomeFastaFiles ./***.fa  --runThreadN 200
 
+##將R1的文件移除，僅僅比對R2，加快時間。R1僅用來拆分細胞；R2用來定義mRNA分子的表達；
 #1-pass STAR
 STAR --genomeDir ./genomeDir --readFilesIn 1.fq --runThreadN 200
 对比如是多个文件需写循环进行。。。
