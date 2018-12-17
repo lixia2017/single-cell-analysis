@@ -62,6 +62,16 @@ STAR --runMode genomeGenerate --genomeDir ./genomeDir2
 --sjdbFileChrStartEnd ./SJ --sjdbOverhang 75 --runThreadN 200
 ＃./SJ 中存放splice junction information contained in the file SJ.out.tab from the first pass
 
+##在当前文件夹下构建index
+STAR --runThreadN 500  
+--runMode genomeGenerate 
+--genomeDir ./ 
+--genomeFastaFiles ../mus_genome/Mus_musculus.GRCm38.dna.primary_assembly.fa  
+--sjdbGTFfile ../mouse_gtf/Mus_musculus.GRCm38.86.gtf
+
+##
+
+
 
 #2-pass STAR　alin
 STAR --genomeDir ./genomeDir2 --readFilesIn 1.fq --runThreadN <n>
