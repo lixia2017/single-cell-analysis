@@ -1,0 +1,25 @@
+#!usr/bin/bash
+set -u
+set -e
+set -o pipefail
+
+GRCH38_ref=~/data/human_genome
+data_path=~/
+GRCH38_human_index=~/data/human_hisat2_index/chr_tran
+GRCH38_hGTF=~/data/human_gtf/Homo_sapiens.GRCh38.86.gtf
+NUM_THREADS=96
+
+ls --color=never *.fastq | while read id;do(hisat2 -t -p $NUM_THREADS -x -U $data_path/${id%_*}_cutadapt.fastq $GRCH38_human_index 2>${id%_*}_map.log | samtools view -Sb  >${id%_*}.bam);done
+ls --color=never *.bam|while read id;do(samtools sort  --threads $NUM_THREADS -o ${id%.*}_sorted_name.bam $id);done
+ls --color=never *sorted_name.bam|while read id;do(htseq-count -f bam -i gene_name -s no $id $GRCH38_hGTF > ${id%_*}.count 2>${id%_*}_count.log);done
+
+
+合并count文件
+## 首先在对应目录中生成tmp.txt文件
+awk '{print FILENAME"\t"$0}' * |grep -v Gene_ID >tmp.txt
+
+## 然后把tmp.txt导入R语言里面用reshape2处理即可！
+setwd('tmp/GSE48213_RAW/')
+a=read.table('tmp2.txt',sep = '\t',stringsAsFactors = F)
+library(reshape2)
+fpkm <- dcast(a,formula = V2~V1)
