@@ -20,6 +20,7 @@ awk '{print FILENAME"\t"$0}' * |grep -v Gene_ID >tmp.txt
 
 ## 然后把tmp.txt导入R语言里面用reshape2处理即可！
 setwd('tmp/GSE48213_RAW/')
-a=read.table('tmp2.txt',sep = '\t',stringsAsFactors = F)
+a=read.table('tmp.txt',sep = '\t',stringsAsFactors = F)
 library(reshape2)
-fpkm <- dcast(a,formula = V2~V1)
+count <- dcast(a,formula = V2~V1)
+write.table(count,"count.txt",sep="\t")
