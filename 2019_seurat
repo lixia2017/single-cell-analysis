@@ -50,8 +50,7 @@ GenePlot(object = pbmc, gene1 = "nUMI", gene2 = "nGene")
 
 
 ###filter out cells 
-pbmc <- FilterCells(object = pbmc, subset.names = c("nGene", "percent.mito"), 
-                    low.thresholds = c(200, -Inf), high.thresholds = c(5000, 0.05))   ##accroding to the above results
+pbmc <- FilterCells(object = pbmc, subset.names = c("nGene", "percent.mito"), low.thresholds = c(200, -Inf), high.thresholds = c(5000, 0.05))   ##accroding to the above results
 
 
 ##Normalize the results
