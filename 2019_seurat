@@ -1,0 +1,564 @@
+rm(list = ls())
+dev.off()
+setwd("D:/LX/LX_2019_GZR/LSK_subtpe/")
+###Seurat 鍒嗘瀽  娉ㄦ剰鐗堟湰 which version  ##
+packageVersion("Seurat")
+library(Seurat)
+library(dplyr)
+library(Matrix)
+dir()
+
+count<-read.table("data_sk_count20190103.txt",sep = "\t",row.names = 1,header = T)
+
+count<-read.table("hscdatadg20181226.txt",sep = "\t",row.names = 1,header = T)
+
+count2<-count[-c(1,2,3,4),]
+
+data <- count2[rowMeans(count2[,1:1600]) != 0 & rowSums(!!count2[,1:1600]) > 3,]
+
+count<-data
+
+dim(count)
+
+dense.size <- object.size(x = as.matrix(x = count))
+dense.size
+
+sparse.size <- object.size(x = count)
+sparse.size
+
+
+dense.size/sparse.size
+
+pbmc <- CreateSeuratObject(raw.data = count, min.cells = 3, min.genes = 200, 
+                           project = "Young_old_hsc")
+
+
+#####
+mito.genes <- grep(pattern = "^mt-", x = rownames(x = pbmc@data), value = TRUE)
+mito.genes
+percent.mito <- Matrix::colSums(pbmc@raw.data[mito.genes, ])/Matrix::colSums(pbmc@raw.data)
+
+
+# AddMetaData adds columns to object@meta.data, and is a great place to
+# stash QC stats
+pbmc <- AddMetaData(object = pbmc, metadata = percent.mito, col.name = "percent.mito")
+VlnPlot(object = pbmc, features.plot = c("nGene", "nUMI", "percent.mito"), nCol = 3)
+
+par(mfrow = c(1, 2))
+GenePlot(object = pbmc, gene1 = "nUMI", gene2 = "percent.mito")
+GenePlot(object = pbmc, gene1 = "nUMI", gene2 = "nGene")
+
+
+###filter out cells 
+pbmc <- FilterCells(object = pbmc, subset.names = c("nGene", "percent.mito"), 
+                    low.thresholds = c(200, -Inf), high.thresholds = c(5000, 0.05))   ##accroding to the above results
+
+
+##Normalize the results
+pbmc <- NormalizeData(object = pbmc, normalization.method = "LogNormalize", scale.factor = 10000)
+
+##Detection of variable genes across the single cells
+#pbmc <- MeanVarPlot(pbmc ,fxn.x = expMean, fxn.y = logVarDivMean, x.low.cutoff = 0.0125, x.high.cutoff = 3, y.cutoff = 0.5, do.contour = F)
+#length(pbmc@var.genes)
+
+
+pbmc <- FindVariableGenes(object = pbmc, mean.function = ExpMean, dispersion.function = LogVMR, 
+                          x.low.cutoff = 0.0125, x.high.cutoff = 3, y.cutoff = 0.5)
+
+
+length(x = pbmc@var.genes)
+
+
+pbmc <- ScaleData(object = pbmc, vars.to.regress = c("nUMI", "percent.mito"))
+
+pbmc <- RunPCA(object = pbmc, pc.genes = pbmc@var.genes, do.print = TRUE, pcs.print = 1:5, 
+               genes.print = 5)
+
+
+PrintPCA(object = pbmc, pcs.print = 1:5, genes.print = 5, use.full = FALSE)
+
+VizPCA(object = pbmc, pcs.use = 1:2)
+
+PCAPlot(object = pbmc, dim.1 = 1, dim.2 = 2,pt.size=5)
+
+help(PCAPlot)
+
+pbmc <- ProjectPCA(object = pbmc, do.print = FALSE)
+
+
+PCHeatmap(object = pbmc, pc.use = 1, cells.use = 100, do.balanced = TRUE, label.columns = FALSE)
+
+PCHeatmap(object = pbmc, pc.use = 1:5, cells.use = 100, do.balanced = TRUE, 
+          label.columns = FALSE, use.full = FALSE)
+
+
+pbmc <- JackStraw(object = pbmc, num.replicate = 10, display.progress = FALSE)
+
+JackStrawPlot(object = pbmc, PCs = 1:12)
+
+PCElbowPlot(object = pbmc)
+
+#
+pbmc <- RunTSNE(object = pbmc, dims.use = 1:12, do.fast = TRUE)
+TSNEPlot(object = pbmc,pt.size = 4)
+
+##
+pbmc <- FindClusters(object = pbmc, reduction.type = "pca", dims.use = 1:12, 
+                     resolution = 0.6, print.output = 0, save.SNN = TRUE)
+
+
+PrintFindClustersParams(object = pbmc)
+
+pbmc <- RunTSNE(object = pbmc, dims.use = 1:10, do.fast = TRUE,size=8)
+
+TSNEPlot(object = pbmc,pt.size = 4)
+
+memory.limit()
+memory.limit(102400)
+
+saveRDS(pbmc, file = "~/pbmc_tutorial.rds")
+
+cluster0.markers <- FindMarkers(object = pbmc, ident.1 = 0, min.pct = 0.25)
+print(x = head(x = cluster0.markers, n = 15))
+
+cluster1.markers <- FindMarkers(object = pbmc, ident.1 = 1, min.pct = 0.25)
+print(x = head(x = cluster1.markers, n = 15))
+
+cluster2.markers <- FindMarkers(object = pbmc, ident.1 = 2, min.pct = 0.25)
+print(x = head(x = cluster2.markers, n = 25))
+
+
+cluster3.markers <- FindMarkers(object = pbmc, ident.1 = 3, min.pct = 0.25)
+print(x = head(x = cluster3.markers, n = 300),getOption("max.print"))
+
+
+pbmc.markers <- FindAllMarkers(object = pbmc, only.pos = TRUE, min.pct = 0.25, 
+                               thresh.use = 0.25)
+pbmc.markers %>% group_by(cluster) %>% top_n(2, avg_logFC)
+
+
+
+###
+FeaturePlot(object = pbmc, features.plot = c("Cd79a","Cd79b","Cd34"), cols.use = c("grey", "blue"), 
+            reduction.use = "tsne")
+
+FeaturePlot(object = pbmc, features.plot = c("Clu","App","Sirt3","Sirt7","Selp","Ctsc"), cols.use = c("grey", "blue"), 
+            reduction.use = "tsne")
+
+
+FeaturePlot(object = pbmc, features.plot = c("Cd34", "Cd69","Xist","Slamf1"), cols.use = c("grey", "blue"), 
+            reduction.use = "tsne")
+
+
+FeaturePlot(pbmc, c("Kit","Ly6a","Gapdh","Ubb",
+                    "B2m","Tpt1","Rpl31","Stmn1","Nfkbia","Cd44","Rpl27","Tuba1b"),
+            cols.use = c("grey","blue"),reduction.use = "tsne",pt.size = 1)
+
+####################
+##pca
+pbmc <- PCA(pbmc, pc.genes = pbmc@var.genes, do.print = TRUE, pcs.print = 5, genes.print = 5)
+pbmc <- ProjectPCA(pbmc)
+PrintPCA(pbmc, pcs.print = 1:5, genes.print = 5, use.full = TRUE)
+VizPCA(pbmc, 1:2)
+PCAPlot(pbmc, 1, 2,pt.size=3)
+PCAPlot(pbmc, 2, 3)
+
+PCHeatmap(pbmc, pc.use = 1, cells.use = 50, do.balanced = TRUE)
+PCHeatmap(pbmc, pc.use = 2, cells.use = 50, do.balanced = TRUE)
+#PCHeatmap(pbmc, pc.use = 1, cells.use = 50, do.balanced = T,label.columns = FALSE)
+
+###samples
+
+#pbmc <- FindClusters(pbmc, pc.use = 1:10, resolution = 0.6, print.output = 0, save.SNN = T)
+pbmc <- RunTSNE(pbmc, dims.use = 1:10, do.fast = T)
+TSNEPlot(pbmc,pt.size=3)
+
+
+####accroding to gene matrix
+pbmc <- FindClusters(pbmc, pc.use = 1:10, resolution = 0.6, print.output = 0, save.SNN = T)
+pbmc <- RunTSNE(pbmc, dims.use = 1:10, do.fast = T)
+TSNEPlot(pbmc,pt.size=3)
+
+
+
+###20181218 results
+
+FeaturePlot(pbmc, c("ACTB","GAPDH","KIT","PTPRC","CD47","CD34"),cols.use = c("grey","blue"))
+
+
+VlnPlot(pbmc, c("Actb","Gapdh","Ly6a","Kit", "Flt3","Ptprc","Hoxb4","Erg","Myb"))
+
+,"Cd47","Cd34","Flt3","Erg","Myb","Hoxb4"))
+
+VlnPlot(pbmc, c("Actb","Gapdh","Ly6a","Kit", "Procr","Ptprc","Itgam","Cd47","Cd34","Flt3","Erg","Myb","Hoxb4","Cd48","Slamf1","Pecam1","Gata2","Meis1","Cd164","Cd55","Cd63","Cd69","Cd44","Cd53","Cd52","Cd79b","Cd81","Cd93","Ctnna1","Bmi1","Lmo2","Etv3","Etv6","Runx1","Sox4","Atg7","Hif1a","Hmmr","Itga2b","Itgb1","Itga4","Cd24a"))
+
+
+
+##############
+
+current.cluster.ids <- c(0, 1, 2, 3, 4, 5,6,7,8)
+
+##find marks
+cluster1.markers <- FindMarkers(pbmc, ident.1 = "0", min.pct = 0.25)
+print(head(cluster1.markers, 20))
+#VlnPlot(pbmc,c("DAD1","NEGR1","TCF4","RNF220"))
+
+cluster2.markers <- FindMarkers(pbmc, ident.1 = "1", min.pct = 0.25)
+print(head(cluster2.markers, 30))
+#VlnPlot(pbmc,c("HBD","PCDH9","MT-ATP6","PLCB1"))
+
+cluster3.markers <- FindMarkers(pbmc, ident.1 = "2", min.pct = 0.25)
+print(head(cluster3.markers, 20))
+#VlnPlot(pbmc,c("AKAP12","MME","NFKBIA","FBLN7"))
+
+cluster4.markers <- FindMarkers(pbmc, ident.1 = "3", min.pct = 0.25)
+print(head(cluster4.markers, 20))
+#VlnPlot(pbmc,c("PTMA","CD74","EEF1A1","MALAT1"))
+
+cluster5.markers <- FindMarkers(pbmc, ident.1 = "4", min.pct = 0.25)
+print(head(cluster5.markers, 20))
+#VlnPlot(pbmc,c("DLG2","GRID2","EYS","HMGA2"))
+
+cluster6.markers <- FindMarkers(pbmc, ident.1 = "5", min.pct = 0.25)
+print(head(cluster6.markers, 20))
+#VlnPlot(pbmc,c("Kit","Ly6a","Cd79a","Cd19"))
+
+
+cluster7.markers <- FindMarkers(pbmc, ident.1 = "6", min.pct = 0.25)
+print(head(cluster6.markers, 20))
+
+
+cluster8.markers <- FindMarkers(pbmc, ident.1 = "7", min.pct = 0.25)
+print(head(cluster6.markers, 20))
+
+
+cluster9.markers <- FindMarkers(pbmc, ident.1 = "8", min.pct = 0.25)
+print(head(cluster6.markers, 20))
+
+
+FeaturePlot(pbmc, c("Kit","Ly6a","Cd79a","Ptma",cols.use = c("grey","blue"),pt.size = 2))
+
+FeaturePlot(pbmc, c("Kit","Ly6a","Cd79a","Cd19","Actb","Gapdh","Ubb","B2m","Tpt1","Rpl31","Stmn1","Nfkbia","Cd44","Rpl27","Tuba1b"),cols.use = c("grey","blue"),pt.size = 2)
+
+Tuba1b Cd44 Nfkbia Xist Nupr1 Eif5 
+
+
+
+
+FeaturePlot(pbmc, c("Kit","Ly6a","Cd79a","Ptma","Rps27"),cols.use = c("grey","blue"),pt.size = 2)
+
+
+
+
+
+
+
+
+###############33
+##find subtype
+pbmc@ident
+x<-as.data.frame(pbmc@ident)
+gene<-as.data.frame(row.names(x))
+yy<-data.frame(gene,x)
+aa0<-as.data.frame(yy[yy$pbmc.ident=="0",])
+aa1<-as.data.frame(yy[yy$pbmc.ident=="1",])
+aa2<-as.data.frame(yy[yy$pbmc.ident=="2",])
+aa3<-as.data.frame(yy[yy$pbmc.ident=="3",])
+aa4<-as.data.frame(yy[yy$pbmc.ident=="4",])
+aa5<-as.data.frame(yy[yy$pbmc.ident=="5",])
+aa6<-as.data.frame(yy[yy$pbmc.ident=="6",])
+head(b)
+
+write.csv(x,"all_samples_group6.csv")
+
+colnames(b)
+##draw pictures
+current.cluster.ids <- c(0, 1, 2, 3, 4, 5,6,7,8)
+new.cluster.ids <- c("P1_BR","P2P3_R1", "P2P3_R2","P1_BR_P2P3_R1","P1_BR_P2P3_R2","P2P3_B3")
+pbmc@ident <- plyr::mapvalues(pbmc@ident, from = current.cluster.ids, to = new.cluster.ids)
+TSNEPlot(pbmc, do.label = T, pt.size = 3)
+
+#淇敼ID
+current.cluster.ids <- c("P1_BR","P2P3_R1", "P2P3_R2","P1_BR_P2P3_R1","P1_BR_P2P3_R2","P2P3_B3")
+new.cluster.ids <- c("P1_BR","P2P3_R1", "P2P3_R2","P1_BR_P2P3_R1","P1_BR_P2P3_R2","P2P3_R3")
+pbmc@ident <- plyr::mapvalues(pbmc@ident, from = current.cluster.ids, to = new.cluster.ids)
+TSNEPlot(pbmc, do.label = T, pt.size = 3)
+
+
+a<-upper("ACTB","Gapdh","Ly6a","Kit", "Procr","Ptprc","Itgam","Cd47","Cd34","Flt3","Erg","Myb","Hoxb4")
+
+##before analysis
+VlnPlot(pbmc, "Actb")
+VlnPlot(pbmc, c("ACTB","Gapdh","Ly6a","Kit", "Procr","Ptprc","Itgam","Cd47","Cd34","Flt3","Erg","Myb","Hoxb4"))
+VlnPlot(pbmc, c("Cd48","Slamf1","Pecam1","Gata2","Meis1","Cd164","Cd55","Cd63","Cd69","Cd44","Cd53","Cd52","Cd79b","Cd81","Cd93","Ctnna1"))
+##"Procr "CD201"
+##"Ptprc"CD45"
+##Itgam mac1
+VlnPlot(pbmc,c("Bmi1","Lmo2","Etv3","Etv6","Runx1","Sox4","Atg7","Hif1a","Hmmr","Itga2b","Itgb1","Itga4","Cd24a"))
+####
+VlnPlot(pbmc, c("Actb","Gapdh","Ly6a","Kit", "Procr","Ptprc","Itgam","Cd47","Cd34","Flt3","Erg","Myb","Hoxb4","Cd48","Slamf1","Pecam1","Gata2","Meis1","Cd164","Cd55","Cd63","Cd69","Cd44","Cd53","Cd52","Cd79b","Cd81","Cd93","Ctnna1","Bmi1","Lmo2","Etv3","Etv6","Runx1","Sox4","Atg7","Hif1a","Hmmr","Itga2b","Itgb1","Itga4","Cd24a"))
+
+
+VlnPlot(pbmc, c("ACTB","GAPDH","KIT","PTPRC","CD47","CD34","FLT3","ERG","MYB","HOXB4"))
+##summary
+VlnPlot(pbmc, c("PTPRD","PTPN13","DMD","CDH13","IL1RAPL1", "PTMA","CD74","EEF1A1","MALAT1"))
+VlnPlot(pbmc, c("KLF6","TPT1","EZR","ATP5B","CD34","PAX5"))
+VlnPlot(pbmc,c("ACTB","GAPDH"))
+VlnPlot(pbmc,c("CD47"))
+
+FeaturePlot(pbmc, "CD19",cols.use = c("grey","blue"),pt.size = 2)
+FeaturePlot(pbmc, c("CD19","MME"),cols.use = c("grey","red"),pt.size=2)
+TSNEPlot(pbmc, do.label = F, pt.size = 3)
+save(pbmc, file = "cart.Robj")      
+
+FeaturePlot(pbmc, c("Kit","Ly6a","Cd79a","Cd19","Actb","Gapdh","Ubb","B2m","Tpt1","Rpl31","Stmn1","Nfkbia","Cd44","Rpl27","Tuba1b"),cols.use = c("grey","blue"),pt.size = 2)
+
+Tuba1b Cd44 Nfkbia Xist Nupr1 Eif5 
+
+
+##find marks
+cluster1.markers <- FindMarkers(pbmc, ident.1 = "0", min.pct = 0.25)
+print(head(cluster1.markers, 20))
+#VlnPlot(pbmc,c("DAD1","NEGR1","TCF4","RNF220"))
+
+cluster2.markers <- FindMarkers(pbmc, ident.1 = "1", min.pct = 0.25)
+print(head(cluster2.markers, 30))
+#VlnPlot(pbmc,c("HBD","PCDH9","MT-ATP6","PLCB1"))
+
+cluster3.markers <- FindMarkers(pbmc, ident.1 = "2", min.pct = 0.25)
+print(head(cluster3.markers, 20))
+#VlnPlot(pbmc,c("AKAP12","MME","NFKBIA","FBLN7"))
+
+cluster4.markers <- FindMarkers(pbmc, ident.1 = "3", min.pct = 0.25)
+print(head(cluster4.markers, 20))
+#VlnPlot(pbmc,c("PTMA","CD74","EEF1A1","MALAT1"))
+
+cluster5.markers <- FindMarkers(pbmc, ident.1 = "4", min.pct = 0.25)
+print(head(cluster5.markers, 20))
+#VlnPlot(pbmc,c("DLG2","GRID2","EYS","HMGA2"))
+
+cluster6.markers <- FindMarkers(pbmc, ident.1 = "5", min.pct = 0.25)
+print(head(cluster6.markers, 20))
+#VlnPlot(pbmc,c("Kit","Ly6a","Cd79a","Cd19"))
+
+
+cluster7.markers <- FindMarkers(pbmc, ident.1 = "6", min.pct = 0.25)
+print(head(cluster6.markers, 20))
+
+
+cluster8.markers <- FindMarkers(pbmc, ident.1 = "7", min.pct = 0.25)
+print(head(cluster6.markers, 20))
+
+
+cluster9.markers <- FindMarkers(pbmc, ident.1 = "8", min.pct = 0.25)
+print(head(cluster6.markers, 20))
+
+
+
+
+
+
+
+FeaturePlot(pbmc, c("PCDH9"),cols.use = c("grey","blue"))
+FeaturePlot(pbmc, c("DAD1","NEGR1","RNF220","NFKBIA","AKAP12","DMD","PTPRD","PTPN13","CD34"),cols.use = c("grey","blue"))
+
+
+##
+pbmc.markers <- FindAllMarkers(pbmc, only.pos = TRUE, min.pct = 0.25, thresh.use = 0.25)
+pbmc.markers %>% group_by(cluster) %>% top_n(2, avg_diff)
+pbmc.markers %>% group_by(cluster) %>% top_n(8, avg_diff) -> top8
+DoHeatmap(pbmc, genes.use = top8$gene, order.by.ident = TRUE, slim.col.label = T, remove.key = TRUE)
+??DoHeatmap
+
+##do.return = TRUE 涓虹敓鎴愯〃鏍?
+#a<-DoHeatmap(pbmc, genes.use = top8$gene, order.by.ident = TRUE, slim.col.label = T, remove.key = TRUE, do.return = TRUE)
+
+bbbb <- colSums(!!b[,1:800])
+c<-b[rowMeans(b[,1:800]) !=0,] ###鍘婚櫎鍋囧熀鍥? 
+d<-b[rowSums(!!b[,1:800])>20,]
+head(d)
+dim(d)
+
+ddd <- colSums(!!d[,1:800])
+barplot(ddd)
+boxplot(ddd)
+mean(ddd)
+
+length(which(ddd>2000))
+length(which(ddd<2000))
+length(which(ddd==2000))
+
+min(ddd)
+max(ddd)
+
+xxxx<-as.data.frame(ddd)
+lou<-d[,which(xxxx$ddd>2000)]
+
+bb<-xxxx[1:400,]
+mean(bb)
+aa<-xxxx[401:800,]
+mean(aa)
+
+####zhouxia
+zx<-read.table("zhouxia_800cells_dg.txt",header = T,row.names = 1,sep="\t")
+zz<-zx[rowSums(!!zx[,1:800])>20,]
+dddd <- colSums(!!zz[,1:800])
+barplot(dddd)
+boxplot(dddd)
+mean(dddd)
+
+xxxx<-as.data.frame(dddd)
+yy<-d[,which(xxxx$dddd>2000)]
+
+bb<-xxxx[1:400,]
+mean(bb)
+aa<-xxxx[401:800,]
+mean(aa)
+
+##zhouxia analysis
+dir()
+zxb<-read.table("zhouxia_B_CD19.txt",header = T,row.names = 1,sep="\t")
+zz<-zxb[rowSums(!!zxb[,1:42])>3,]
+dddd <- colSums(!!zz[,1:42])
+barplot(dddd)
+boxplot(dddd)
+mean(dddd)
+
+xxxx<-as.data.frame(dddd)
+yy<-zz[,which(xxxx$dddd>1000)]
+
+yy[rownames(yy)=="CD19",]
+zxb[rownames(zxb)=="CD19",]
+
+###zhouxia zyc
+dir()
+
+zyc<-read.table("zhouxia589.csv",header = T,row.names = 1,sep=",")
+zz<-zyc[rowSums(!!zyc[,1:589])>20,]
+dddd <- colSums(!!zz[,1:589])
+barplot(dddd)
+boxplot(dddd)
+mean(dddd)
+
+xxxx<-as.data.frame(dddd)
+yy<-zz[,which(xxxx$dddd>1000)]
+colnames(yy)
+
+write.table(yy,"zhouxiaz_filter.txt",sep = "\t")
+BB<-yy[,1:94]
+colnames(BB)
+write.table(BB,"zhouxiaz_filte_B.txt",sep = "\t")
+
+XX<-as.data.frame(colSums(BB[,1:94]))
+
+AA<-yy[,95:339]
+colnames(AA)
+write.table(AA,"zhouxiaz_filte_R.txt",sep = "\t")
+
+###normalizie for BB by DESEQ2
+colnames(yy)
+group<-as.data.frame(c(rep("B",94),rep("R",245)))
+
+group_list=group$`c(rep("B", 94), rep("R", 245))`
+
+colData <- data.frame(row.names=colnames(yy), group_list=group_list)
+
+
+## DESeq 鏍囧噯鍖?
+
+source("http://bioconductor.org/biocLite.R")
+biocLite("RSQLite")
+biocLite("digest")
+biocLite("DESeq2")
+options(BioC_mirror="http://mirrors.ustc.edu.cn/bioc/")
+library(DESeq2)
+dds <- DESeqDataSetFromMatrix(countData = yy,
+                              colData = colData,
+                              design = ~ group_list)
+
+
+dds2 <- DESeq(dds)  
+resultsNames(dds2)
+rld <- rlogTransformation(dds2) 
+exprSet_new=assay(rld)
+
+hist(yy)
+hist(exprSet_new)
+
+###scale zhouxia before
+dir()
+zyc_f_b<-read.table("zhouxiaz_filte_B.txt",header = T,row.names = 1,sep="\t")
+head(zyc_f_b)
+zyc_b_new<-scale(zyc_f_b)
+hist(zyc_b_new[rownames(zyc_b_new)=="GAPDH",])
+boxplot(zyc_b_new[rownames(zyc_b_new)=="GAPDH",])
+barplot(zyc_b_new[rownames(zyc_b_new)=="GAPDH",])
+
+#
+pbmc <- new("seurat", raw.data = zyc_b_new)
+pbmc <- Setup(pbmc, min.cells = 3, min.genes = 500, do.logNormalize = F, total.expr = 1e4, project = "Zhouxia")
+
+pbmc <- MeanVarPlot(pbmc ,fxn.x = expMean, fxn.y = logVarDivMean, x.low.cutoff = 0.0125, x.high.cutoff = 3, y.cutoff = 0.5, do.contour = F)
+length(pbmc@var.genes)
+
+##pca
+pbmc <- PCA(pbmc, pc.genes = pbmc@var.genes, do.print = TRUE, pcs.print = 5, genes.print = 5)
+pbmc <- ProjectPCA(pbmc)
+PrintPCA(pbmc, pcs.print = 1:5, genes.print = 5, use.full = TRUE)
+VizPCA(pbmc, 1:2)
+PCAPlot(pbmc, 1, 2,pt.size=3)
+PCAPlot(pbmc, 2, 3)
+
+PCHeatmap(pbmc, pc.use = 1, cells.use = 50, do.balanced = TRUE)
+PCHeatmap(pbmc, pc.use = 2, cells.use = 50, do.balanced = TRUE)
+#PCHeatmap(pbmc, pc.use = 1, cells.use = 50, do.balanced = T,label.columns = FALSE)
+
+
+pbmc <- FindClusters(pbmc, pc.use = 1:10, resolution = 0.6, print.output = 0, save.SNN = T)
+
+pbmc <- RunTSNE(pbmc, dims.use = 1:10, do.fast = T)
+TSNEPlot(pbmc,pt.size=3)
+
+
+##
+###scale zhouxia relapse
+dir()
+zyc_f_r<-read.table("zhouxiaz_filte_R.txt",header = T,row.names = 1,sep="\t")
+head(zyc_f_r)
+zyc_r_new<-scale(zyc_f_r)
+hist(zyc_r_new[rownames(zyc_r_new)=="GAPDH",])
+boxplot(zyc_r_new[rownames(zyc_r_new)=="GAPDH",])
+barplot(zyc_r_new[rownames(zyc_r_new)=="GAPDH",])
+
+#
+pbmc <- new("seurat", raw.data = zyc_r_new)
+pbmc <- Setup(pbmc, min.cells = 3, min.genes = 500, do.logNormalize = F, total.expr = 1e4, project = "Zhouxia")
+
+pbmc <- MeanVarPlot(pbmc ,fxn.x = expMean, fxn.y = logVarDivMean, x.low.cutoff = 0.0125, x.high.cutoff = 3, y.cutoff = 0.5, do.contour = F)
+length(pbmc@var.genes)
+
+##pca
+pbmc <- PCA(pbmc, pc.genes = pbmc@var.genes, do.print = TRUE, pcs.print = 5, genes.print = 5)
+pbmc <- ProjectPCA(pbmc)
+PrintPCA(pbmc, pcs.print = 1:5, genes.print = 5, use.full = TRUE)
+VizPCA(pbmc, 1:2)
+PCAPlot(pbmc, 1, 2,pt.size=3)
+PCAPlot(pbmc, 2, 3)
+
+PCHeatmap(pbmc, pc.use = 1, cells.use = 50, do.balanced = TRUE)
+PCHeatmap(pbmc, pc.use = 2, cells.use = 50, do.balanced = TRUE)
+#PCHeatmap(pbmc, pc.use = 1, cells.use = 50, do.balanced = T,label.columns = FALSE)
+
+
+pbmc <- FindClusters(pbmc, pc.use = 1:10, resolution = 0.6, print.output = 0, save.SNN = T)
+
+pbmc <- RunTSNE(pbmc, dims.use = 1:10, do.fast = T)
+TSNEPlot(pbmc,pt.size=3)
+
+VlnPlot(pbmc, "CD19")
+VlnPlot(pbmc, c("CD44","ITGA4","CD59", "SERPINE1"))
+VlnPlot(pbmc,c("ACTB","GAPDH"))
+
+
+##
+pbmc.data<-read.table("zhouxiaz_filte_B.txt",header = T,row.names = 1,sep="\t")
