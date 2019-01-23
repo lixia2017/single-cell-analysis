@@ -102,7 +102,7 @@ pbmc <- RunTSNE(object = pbmc, dims.use = 1:12, do.fast = TRUE)
 TSNEPlot(object = pbmc,pt.size = 4)
 
 ##
-pbmc <- FindClusters(object = pbmc, reduction.type = "pca", dims.use = 1:12, 
+pbmc_cluster <- FindClusters(object = pbmc, reduction.type = "pca", dims.use = 1:12, 
                      resolution = 0.6, print.output = 0, save.SNN = TRUE)
 
 
