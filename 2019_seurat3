@@ -1,0 +1,315 @@
+wgy_C1_Seurat3.0
+
+setwd("~/lixia/WGY")
+
+packageVersion("Seurat")
+library(Seurat)
+library(dplyr)
+library(Matrix)
+
+data<-read.table("twopoints.csv",header=T,row.names=1,sep=",")
+
+pbmc <- CreateSeuratObject(counts = data, min.cells = 3, min.features = 200, project = " CAR") 
+
+pbmc[["percent.mt"]]<-PercentageFeatureSet(object=pbmc,pattern="^MT-") 
+VlnPlot(object=pbmc,features=c("nFeature_RNA","nCount_RNA","percent.mt"),ncol=3)
+
+plot1<-FeatureScatter(object=pbmc,feature1="nCount_RNA",feature2="percent.mt")
+plot2<-FeatureScatter(object=pbmc,feature1="nCount_RNA",feature2="nFeature_RNA")
+CombinePlots(plots=list(plot1,plot2))
+
+
+
+###filter out cells V2 
+
+#FilterCells(object = object, subset.names = "name", low.threshold = low, high.threshold = high)	
+
+
+#pbmc <- FilterCells(object = pbmc, subset.names = c("nGene", "percent.mito"), 
+                    low.thresholds = c(500, -Inf), high.thresholds = c(8000, 0.05))   ##accroding to the above results
+
+
+V3
+#subset(x = object, subset = name > low & name < high)
+
+#pbmc<-subset(x = pbmc, subset = percent.mt >  0 & percent.mt < 25)
+
+pbmc<-subset(x = pbmc, subset = percent.mt >  0 & percent.mt < 15)
+
+
+
+
+
+pbmc<-NormalizeData(object=pbmc,normalization.method="LogNormalize",scale.factor=10000)
+
+pbmc<-FindVariableFeatures(object=pbmc,selection.method="vst",nfeatures=2000)
+
+top10<-head(x=VariableFeatures(object=pbmc),10)
+top10
+
+plot1<-VariableFeaturePlot(object=pbmc)                                                
+plot2<-LabelPoints(plot=plot1,points=top10,repel=T)
+CombinePlots(plots=list(plot1,plot2))
+
+
+pbmc <- ScaleData(object = pbmc)
+pbmc <- RunPCA(object = pbmc)
+
+
+VizDimLoadings(object=pbmc,dims=1:2,reduction="pca")
+
+DimPlot(object=pbmc,reduction="pca")
+
+DimHeatmap(object=pbmc, dims=1,cells=500,balance=T)
+
+
+pbmc<-JackStraw(object=pbmc,num.replicate=100)
+pbmc<-ScoreJackStraw(object=pbmc,dims=1:20)
+
+JackStrawPlot(object = pbmc, dims = 1:15)
+
+
+pbmc <- FindNeighbors(object = pbmc, dims = 1:15)
+pbmc <- RunUMAP(object = pbmc, dims = 1:15)
+DimPlot(object = pbmc, reduction = "umap",pt.size=2)
+
+### UMAP
+
+##多个样本分开画
+
+p<-Seurat::DimPlot(object = pbmc, reduction = "umap",pt.size=1)
+pbuild<-ggplot2::ggplot_build(p)
+pdata<-pbuild$data[[1]]   
+head(pdata)
+
+###1
+pdata_CRS_CARNeg<-pdata[pdata$group==1,] 
+
+#dim(pdata)
+#dim(pdata_CRS_CARNeg)
+
+ggplot(pdata_CRS_CARNeg,aes(x,y))+geom_point(colour=pdata_CRS_CARNeg$colour,alpha=.8,size=2)
+pdf("CRS_CARNeg.pdf")
+ggplot(pdata_CRS_CARNeg,aes(x,y))+geom_point(colour=pdata_CRS_CARNeg$colour,alpha=.8,size=2)
+dev.off()
+
+
+#####2
+pdata_CRS_CARPos<-pdata[pdata$group==2,] 
+
+dim(pdata)
+dim(pdata_CRS_CARPos)
+
+ggplot(pdata_CRS_CARPos,aes(x,y))+geom_point(colour=pdata_CRS_CARPos$colour,alpha=.8,size=2)
+pdf("CRS_CARPos.pdf")
+ggplot(pdata_CRS_CARPos,aes(x,y))+geom_point(colour=pdata_CRS_CARPos$colour,alpha=.8,size=2)
+dev.off()
+
+
+####3
+pdata_Remission_CARNeg<-pdata[pdata$group==3,] 
+
+dim(pdata)
+dim(pdata_Remission_CARNeg)
+
+ggplot(pdata_Remission_CARNeg,aes(x,y))+geom_point(colour=pdata_Remission_CARNeg$colour,alpha=.8,size=2)
+pdf("Remission_CARNeg.pdf")
+ggplot(pdata_Remission_CARNeg,aes(x,y))+geom_point(colour=pdata_Remission_CARNeg$colour,alpha=.8,size=2)
+dev.off()
+
+
+####4
+pdata_Remission_CARPos<-pdata[pdata$group==4,] 
+
+dim(pdata)
+dim(pdata_Remission_CARPos)
+
+ggplot(pdata_Remission_CARPos,aes(x,y))+geom_point(colour=pdata_Remission_CARPos$colour,alpha=.8,size=2)
+pdf("Remission_CARPos.pdf")
+ggplot(pdata_Remission_CARPos,aes(x,y))+geom_point(colour=pdata_Remission_CARPos$colour,alpha=.8,size=2)
+dev.off()
+
+
+
+  
+##
+
+
+###
+
+p<-Seurat::DimPlot(object = pbmc, reduction = "umap",pt.size=1)  
+
+
+###
+pbmc <- FindClusters(object = pbmc, resolution = 0.5)
+pbmc <- RunUMAP(object = pbmc, dims = 1:15)
+DimPlot(object = pbmc, reduction = "umap",pt.size=2)
+
+
+
+cluster0.markers <- FindMarkers(object = pbmc, ident.1 = 0, min.pct = 0.25)
+head(x = cluster0.markers, n = 5)
+
+
+cluster1.markers <- FindMarkers(object = pbmc, ident.1 = 1, min.pct = 0.25)
+head(x = cluster1.markers, n = 5)
+
+
+cluster2.markers <- FindMarkers(object = pbmc, ident.1 = 2, min.pct = 0.25)
+head(x = cluster2.markers, n = 5)
+
+
+pbmc.markers <- FindAllMarkers(object = pbmc, only.pos = TRUE, min.pct = 0.25, 
+                               thresh.use = 0.25)
+
+pbmc.markers %>% group_by(cluster) %>% top_n(2, avg_logFC)
+
+
+
+VlnPlot(object = pbmc, features = c("MALAT1", "RPS11","RPS27","RPL6","MCM7","POU6F2","PCNA","STMN1","DUT","GAPDH","MYH10","RPL29","RPS11P5"))
+
+
+##CD 3+ T 
+
+FeaturePlot(object = pbmc, features = c("ACTB","GAPDH","CD3D", "CD4","CD8A","GZMB","PRF1","IFNG","IL2RG"))
+
+
+#FeaturePlot(object = pbmc, features = c("IL2","IL5","IL7", "IL8", "IL9","IL12","IL15","IL21","GM-CSF"))
+
+#cd138, bcma =="SDC1", "TNFRSF17", "LYZ"
+
+
+top10 <- pbmc.markers %>% group_by(cluster) %>% top_n(n = 10, wt = avg_logFC)
+DoHeatmap(object = pbmc, features = top10$gene) + NoLegend()
+
+
+
+ [1] "MALAT1"     "RPS11"      "RPS27"   "RPL6"      
+ [6] "RPL10"      "RPS23"      "EIF1"       "JUND"       "RPS14"     
+[11] "MCM7"       "POU6F2"     "PCNA"       "STMN1"      "DUT"       
+[16] "RANBP1"     "KIAA0101"   "TYMS"       "RRM2"       "CKS1B"     
+[21] "POU6F2"     "MYH10"      "GAPDH"      "RPS11P5"    "RPL29"     
+[26] "PFN1"       "AC" "EEF1A1"     "SH3BGRL3"   "AC007969.5"
+
+
+
+###
+
+new.cluster.ids <- c("Remission_CD3+CART+/-","CRS_CART+", "CRS_CART-")
+names(x = new.cluster.ids) <- levels(x = pbmc)
+pbmc <- RenameIdents(object = pbmc, new.cluster.ids)
+DimPlot(object = pbmc, reduction = "umap", label = TRUE, pt.size = 2)
+
+
+
+new.cluster.ids <- c("Rem_CART+/-","CRS_CART+", "CRS_CART-")
+names(x = new.cluster.ids) <- levels(x = pbmc)
+pbmc <- RenameIdents(object = pbmc, new.cluster.ids)
+DimPlot(object = pbmc, reduction = "umap", label = TRUE, pt.size = 2)
+
+
+DoHeatmap(object = pbmc, features = top40$gene) 
+
+
+###TSNE
+###pbmc <- FindClusters(object = pbmc, resolution = 0.5)
+
+###pbmc <- RunTSNE(object = pbmc)
+###DimPlot(object = pbmc, reduction = "tsne")
+###cluster1.markers <- FindMarkers(object = pbmc, ident.1 = 0, logfc.threshold = 0.25, test.use = "roc", only.pos = TRUE)
+
+
+
+##wgy c1 deseq
+setwd("/home/hcb-lab/lixia/C1_800_CART/wgy/")
+count<-read.table("wgy_dg_count_cd3+.csv",sep=",",header=T,row.names=1)
+data<-count
+
+library(DESeq2)
+
+condition<-""
+condition[1:126]<-"PeakCarNeg"
+condition[127:198]<-"PeakCarPos"
+
+condition[199:458]<-"RemissionCarNeg"
+condition[459:778]<-"RemissionCarPos"
+
+treatment<-as.data.frame(condition)
+treatment$group<-colnames(data)
+rownames(treatment)<-colnames(data)
+
+treatment$condition ##"P0S" and "POS"
+dds <- DESeqDataSetFromMatrix(countData = data, colData = treatment, design = ~ condition)
+dds <- DESeq(dds)
+
+
+#res_PBMC <- results(dds,contrast=c("condition", "RemissionPBMC","PeakPBMC"))
+res_CarPos <- results(dds,contrast=c("condition", "RemissionCarPos","PeakCarPos")) ##RemissionCarPos  vs PeakCarPos 
+res_CarNeg <- results(dds,contrast=c("condition", "RemissionCarNeg","PeakCarNeg"))
+
+res_CRS<-results(dds,contrast=c("condition", "PeakCarPos","PeakCarNeg"))
+res_Remission<-results(dds,contrast=c("condition", "RemissionCarPos","RemissionCarNeg"))
+
+treatment$condition
+
+
+###cluster 后的比较
+
+count<-read.table("wgy_c1_cluster_data.csv",sep=",",header=T,row.names=1)
+count2<-t(count)
+data <- count2[rowMeans(count2[,1:778]) != 0 & rowSums(!!count2[,1:778]) > 5,]
+
+
+library(DESeq2)
+# new.cluster.ids <- c("Remission_CD3+CART+/-","CRS_CART+", "CRS_CART-")
+
+condition<-""  ##备注不能有+/-
+condition[1:480]<-"Remission_CD3"
+condition[481:634]<-"CRS_CARPos"
+condition[635:778]<-"CRS_CARNeg"
+
+
+treatment<-as.data.frame(condition)
+treatment$group<-colnames(data)
+rownames(treatment)<-colnames(data)
+
+treatment$condition ##"P0S" and "POS"
+
+
+dds <- DESeqDataSetFromMatrix(countData = data, colData = treatment, design = ~ condition)
+
+dds <- DESeq(dds)
+
+
+res_CRS <- results(dds,contrast=c("condition","CRS_CARPos","CRS_CARNeg")
+res_CarPos <- results(dds,contrast=c("condition", "Remission_CD3","CRS_CARPos"))
+res_CarNeg <- results(dds,contrast=c("condition", "Remission_CD3","CRS_CARNeg"))
+
+
+
+treatment$condition
+
+
+
+
+
+
+####https://satijalab.org/seurat/essential_commands.html
+
+pbmc.counts <- Read10X(data.dir = "~/Downloads/pbmc3k/filtered_gene_bc_matrices/hg19/")
+pbmc <- CreateSeuratObject(counts = data)
+pbmc <- NormalizeData(object = pbmc)
+pbmc <- FindVariableFeatures(object = pbmc)
+pbmc <- ScaleData(object = pbmc)
+pbmc <- RunPCA(object = pbmc)
+
+
+
+pbmc <- FindNeighbors(object = pbmc)
+#pbmc <- FindClusters(object = pbmc)
+pbmc <- RunTSNE(object = pbmc)
+DimPlot(object = pbmc, reduction = "tsne")
+########
+
+
+
