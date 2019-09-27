@@ -1,0 +1,23 @@
+#BSUB -J XYL1_cellranger_S1
+#BSUB -q normal
+#BSUB -n 36
+#BSUB -o errorReport.txt
+#BSUB -e %J.err
+~/software/10X/cellranger-3.0.0/cellranger count --id=XYL1 --transcriptome=~/software/10X/refdata-cellranger-GRCh38-3.0.0 --fastqs=/media/hcb-lab/4620330E20330489/veritas/fastq/XYL_single data/XYL1 --sample=XYL1 
+
+
+
+#dinggao20190821
+/home/hcb-lab/software/10X/cellranger-3.0.0/cellranger count --id=XYL1 --transcriptome=/home/hcb-lab/software/10X/refdata-cellranger-GRCh38-3.0.0 --fastqs=/media/hcb-lab/4620330E20330489/veritas/fastq/XYL_single_data/XYL1
+
+
+/home/hcb-lab/software/10X/cellranger-3.0.0/cellranger count --id=XYL2 --transcriptome=/home/hcb-lab/software/10X/refdata-cellranger-GRCh38-3.0.0 --fastqs=/media/hcb-lab/4620330E20330489/veritas/fastq/XYL_single_data/XYL2
+
+
+/home/hcb-lab/software/10X/cellranger-3.0.0/cellranger count --id=XYL3 --transcriptome=/home/hcb-lab/software/10X/refdata-cellranger-GRCh38-3.0.0 --fastqs=/media/hcb-lab/4620330E20330489/veritas/fastq/XYL_single_data/XYL3
+
+
+/home/hcb-lab/software/10X/cellranger-3.0.0/cellranger count --id=XYL4 --transcriptome=/home/hcb-lab/software/10X/refdata-cellranger-GRCh38-3.0.0 --fastqs=/media/hcb-lab/4620330E20330489/veritas/fastq/XYL_single_data/XYL4
+
+
+/home/hcb-lab/software/10X/cellranger-3.0.0/cellranger count --id=XYL5 --transcriptome=/home/hcb-lab/software/10X/refdata-cellranger-GRCh38-3.0.0 --fastqs=/media/hcb-lab/4620330E20330489/veritas/fastq/XYL_single_data/XYL5
