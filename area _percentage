@@ -1,0 +1,25 @@
+
+getwd()
+#install.packages("hrbrthemes")
+# Library
+library(viridis)
+library(hrbrthemes)
+
+setwd("F:/2020_CART文章/Figure")
+
+data2<-read.table("zjg_cell type percentage.csv",sep=",",header=T)
+
+# Plot
+ggplot(data2, aes(x=Time, y=Percentage, fill=Group)) + 
+  geom_area(alpha=0.6 , size=1, colour="black")
+
+ggplot(data2, aes(x=Time, y=Percentage, fill=Group)) + 
+  geom_area(alpha=0.6 , size=1, colour="black") + 
+  scale_x_continuous(breaks=seq(0, 33, 1)) +
+  theme_classic()                                                            
+
+
+##去边框  theme_classic()   
+
+## 显示X轴 scale_x_continuous(breaks=seq(0, 33, 1))  
+
